@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\LogbookInsiden;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\LogbookImport;
+use App\Exports\LogbookExport;
 
 class LogbookInsidenController extends Controller
 {
@@ -30,15 +33,23 @@ class LogbookInsidenController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
         $validated = $request->validate([
             'pelapor' => 'required|string|max:100',
             'metode_pelaporan' => 'required|string|max:50',
             'waktu_mulai' => 'required|date',
             'waktu_selesai' => 'required|date|after:waktu_mulai',
-            'no_ticket' => 'nullable|string|max:50',
-            'direspon_oleh' => 'required|string',
+            'keterangan_waktu_selesai' => 'nullable|string',
+            'sla' => 'nullable|string|max:50',
+            'persentase_sla_tahunan' => 'nullable|numeric|min:0|max:100',
+            'keterangan_sla' => 'nullable|string',
+            'aplikasi' => 'nullable|string|max:100',
+            'ip_server' => 'nullable|ip',
+            'tipe_insiden' => 'nullable|string|max:100',
             'keterangan' => 'required|string',
+            'akar_penyebab' => 'nullable|string',
+            'tindak_lanjut_detail' => 'nullable|string',
+            'direspon_oleh' => 'required|string',
+            'status_insiden' => 'required|in:Open,On Progress,Closed',
         ], [
             'pelapor.required' => 'Nama pelapor wajib diisi',
             'metode_pelaporan.required' => 'Metode pelaporan wajib dipilih',
@@ -47,23 +58,35 @@ class LogbookInsidenController extends Controller
             'waktu_selesai.after' => 'Waktu selesai harus setelah waktu mulai',
             'direspon_oleh.required' => 'Penanggung jawab wajib diisi',
             'keterangan.required' => 'Keterangan insiden wajib diisi',
+            'status_insiden.required' => 'Status insiden wajib dipilih',
+            'ip_server.ip' => 'Format IP Server tidak valid',
         ]);
 
         // Hitung downtime otomatis
         $waktuMulai = Carbon::parse($validated['waktu_mulai']);
         $waktuSelesai = Carbon::parse($validated['waktu_selesai']);
-        $downtimeMenit = $waktuMulai->diffInMinutes($waktuSelesai);
+        $lamaDowntime = $waktuMulai->diffInMinutes($waktuSelesai);
+        $konversiJam = round($lamaDowntime / 60, 2);
 
-        // Simpan ke database
         LogbookInsiden::create([
             'pelapor' => $validated['pelapor'],
             'metode_pelaporan' => $validated['metode_pelaporan'],
             'waktu_mulai' => $validated['waktu_mulai'],
             'waktu_selesai' => $validated['waktu_selesai'],
-            'downtime_menit' => $downtimeMenit,
-            'no_ticket' => $validated['no_ticket'],
-            'direspon_oleh' => $validated['direspon_oleh'],
+            'keterangan_waktu_selesai' => $validated['keterangan_waktu_selesai'],
+            'downtime_menit' => $lamaDowntime,
+            'konversi_ke_jam' => $konversiJam,
+            'sla' => $validated['sla'],
+            'persentase_sla_tahunan' => $validated['persentase_sla_tahunan'],
+            'keterangan_sla' => $validated['keterangan_sla'],
+            'aplikasi' => $validated['aplikasi'],
+            'ip_server' => $validated['ip_server'],
+            'tipe_insiden' => $validated['tipe_insiden'],
             'keterangan' => $validated['keterangan'],
+            'akar_penyebab' => $validated['akar_penyebab'],
+            'tindak_lanjut_detail' => $validated['tindak_lanjut_detail'],
+            'direspon_oleh' => $validated['direspon_oleh'],
+            'status_insiden' => $validated['status_insiden'],
         ]);
 
         return redirect()->route('logbook.index')
@@ -83,40 +106,50 @@ class LogbookInsidenController extends Controller
      */
     public function update(Request $request, LogbookInsiden $logbook)
     {
-        // Validasi input
         $validated = $request->validate([
             'pelapor' => 'required|string|max:100',
             'metode_pelaporan' => 'required|string|max:50',
             'waktu_mulai' => 'required|date',
             'waktu_selesai' => 'required|date|after:waktu_mulai',
-            'no_ticket' => 'nullable|string|max:50',
-            'direspon_oleh' => 'required|string',
+            'keterangan_waktu_selesai' => 'nullable|string',
+            'sla' => 'nullable|string|max:50',
+            'persentase_sla_tahunan' => 'nullable|numeric|min:0|max:100',
+            'keterangan_sla' => 'nullable|string',
+            'aplikasi' => 'nullable|string|max:100',
+            'ip_server' => 'nullable|ip',
+            'tipe_insiden' => 'nullable|string|max:100',
             'keterangan' => 'required|string',
-        ], [
-            'pelapor.required' => 'Nama pelapor wajib diisi',
-            'metode_pelaporan.required' => 'Metode pelaporan wajib dipilih',
-            'waktu_mulai.required' => 'Waktu mulai wajib diisi',
-            'waktu_selesai.required' => 'Waktu selesai wajib diisi',
-            'waktu_selesai.after' => 'Waktu selesai harus setelah waktu mulai',
-            'direspon_oleh.required' => 'Penanggung jawab wajib diisi',
-            'keterangan.required' => 'Keterangan insiden wajib diisi',
+            'akar_penyebab' => 'nullable|string',
+            'tindak_lanjut_detail' => 'nullable|string',
+            'direspon_oleh' => 'required|string',
+            'status_insiden' => 'required|in:Open,On Progress,Closed',
         ]);
 
         // Hitung ulang downtime
         $waktuMulai = Carbon::parse($validated['waktu_mulai']);
         $waktuSelesai = Carbon::parse($validated['waktu_selesai']);
-        $downtimeMenit = $waktuMulai->diffInMinutes($waktuSelesai);
+        $lamaDowntime = $waktuMulai->diffInMinutes($waktuSelesai);
+        $konversiJam = round($lamaDowntime / 60, 2);
 
-        // Update database
         $logbook->update([
             'pelapor' => $validated['pelapor'],
             'metode_pelaporan' => $validated['metode_pelaporan'],
             'waktu_mulai' => $validated['waktu_mulai'],
             'waktu_selesai' => $validated['waktu_selesai'],
-            'downtime_menit' => $downtimeMenit,
-            'no_ticket' => $validated['no_ticket'],
-            'direspon_oleh' => $validated['direspon_oleh'],
+            'keterangan_waktu_selesai' => $validated['keterangan_waktu_selesai'],
+            'downtime_menit' => $lamaDowntime,
+            'konversi_ke_jam' => $konversiJam,
+            'sla' => $validated['sla'],
+            'persentase_sla_tahunan' => $validated['persentase_sla_tahunan'],
+            'keterangan_sla' => $validated['keterangan_sla'],
+            'aplikasi' => $validated['aplikasi'],
+            'ip_server' => $validated['ip_server'],
+            'tipe_insiden' => $validated['tipe_insiden'],
             'keterangan' => $validated['keterangan'],
+            'akar_penyebab' => $validated['akar_penyebab'],
+            'tindak_lanjut_detail' => $validated['tindak_lanjut_detail'],
+            'direspon_oleh' => $validated['direspon_oleh'],
+            'status_insiden' => $validated['status_insiden'],
         ]);
 
         return redirect()->route('logbook.index')
@@ -129,8 +162,39 @@ class LogbookInsidenController extends Controller
     public function destroy(LogbookInsiden $logbook)
     {
         $logbook->delete();
-
         return redirect()->route('logbook.index')
             ->with('success', 'Data insiden berhasil dihapus');
+    }
+
+    /**
+     * Import data from Excel
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:5120', // Max 5MB
+        ], [
+            'file.required' => 'File Excel wajib dipilih',
+            'file.mimes' => 'File harus berformat Excel (.xlsx, .xls, atau .csv)',
+            'file.max' => 'Ukuran file maksimal 5MB',
+        ]);
+
+        try {
+            Excel::import(new LogbookImport, $request->file('file'));
+
+            return redirect()->route('logbook.index')
+                ->with('success', 'Data berhasil diimport dari Excel');
+        } catch (\Exception $e) {
+            return redirect()->route('logbook.index')
+                ->with('error', 'Gagal import data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export data to Excel
+     */
+    public function export()
+    {
+        return Excel::download(new LogbookExport, 'logbook-insiden-' . date('Y-m-d') . '.xlsx');
     }
 }

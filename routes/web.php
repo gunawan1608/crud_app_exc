@@ -19,6 +19,10 @@ Route::middleware('auth')->group(function () {
 
     // Route Logbook Insiden (CRUD)
     Route::resource('logbook', LogbookInsidenController::class);
+
+    // Route Import & Export
+    Route::post('/logbook/import', [LogbookInsidenController::class, 'import'])->name('logbook.import');
+    Route::get('/logbook/export', [LogbookInsidenController::class, 'export'])->name('logbook.export');
 });
 
 require __DIR__.'/auth.php';
