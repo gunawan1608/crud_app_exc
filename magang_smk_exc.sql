@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 20 Jan 2026 pada 09.00
+-- Waktu pembuatan: 20 Jan 2026 pada 10.55
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.2.12
 
@@ -108,13 +108,30 @@ CREATE TABLE `logbook_insiden` (
   `metode_pelaporan` varchar(50) DEFAULT NULL,
   `waktu_mulai` datetime DEFAULT NULL,
   `waktu_selesai` datetime DEFAULT NULL,
+  `keterangan_waktu_selesai` text DEFAULT NULL,
   `downtime_menit` int(11) DEFAULT NULL,
-  `no_ticket` varchar(50) DEFAULT NULL,
+  `konversi_ke_jam` decimal(8,2) NOT NULL DEFAULT 0.00,
+  `sla` varchar(255) DEFAULT NULL,
+  `persentase_sla_tahunan` decimal(5,2) DEFAULT NULL,
+  `keterangan_sla` text DEFAULT NULL,
+  `aplikasi` varchar(255) DEFAULT NULL,
+  `ip_server` varchar(255) DEFAULT NULL,
+  `tipe_insiden` varchar(255) DEFAULT NULL,
   `direspon_oleh` text DEFAULT NULL,
   `keterangan` text DEFAULT NULL,
+  `akar_penyebab` text DEFAULT NULL,
+  `tindak_lanjut_detail` text DEFAULT NULL,
+  `status_insiden` enum('Open','On Progress','Closed') NOT NULL DEFAULT 'Open',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data untuk tabel `logbook_insiden`
+--
+
+INSERT INTO `logbook_insiden` (`id`, `pelapor`, `metode_pelaporan`, `waktu_mulai`, `waktu_selesai`, `keterangan_waktu_selesai`, `downtime_menit`, `konversi_ke_jam`, `sla`, `persentase_sla_tahunan`, `keterangan_sla`, `aplikasi`, `ip_server`, `tipe_insiden`, `direspon_oleh`, `keterangan`, `akar_penyebab`, `tindak_lanjut_detail`, `status_insiden`, `created_at`, `updated_at`) VALUES
+(1, 'Bruce Banner', 'Langsung', '2026-01-20 16:50:00', '2026-01-21 16:50:00', 'Segera', 1440, 24.00, '88%', 10.00, 'SLA', 'www.youtube.com', '192.168.1.1', 'Software', 'Tony Stark', 'Satu tambah satu dua tambah tiga segini', 'Skibididob', 'Langkah - Langkah yang ini tuh gini gitu', 'On Progress', '2026-01-20 02:52:20', '2026-01-20 02:52:20');
 
 -- --------------------------------------------------------
 
@@ -135,7 +152,8 @@ CREATE TABLE `migrations` (
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (1, '0001_01_01_000000_create_users_table', 1),
 (2, '0001_01_01_000001_create_cache_table', 1),
-(3, '0001_01_01_000002_create_jobs_table', 1);
+(3, '0001_01_01_000002_create_jobs_table', 1),
+(4, '2026_01_20_094005_create_logbook_insidens_table', 2);
 
 -- --------------------------------------------------------
 
@@ -164,6 +182,13 @@ CREATE TABLE `sessions` (
   `last_activity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data untuk tabel `sessions`
+--
+
+INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
+('0466hzIEaHFO6GDqV5lWm4Kne9zkVnU4EqtZzHKB', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiV21vY2wxMnMzY2plOG1iWnJ3VHpKRVhZb0Uxd0VaSGZZYklqSUdFcCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dib29rL2V4cG9ydCI7czo1OiJyb3V0ZSI7czoxMjoibG9nYm9vay5zaG93Ijt9czozOiJ1cmwiO2E6MDp7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1768902840);
+
 -- --------------------------------------------------------
 
 --
@@ -180,6 +205,13 @@ CREATE TABLE `users` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `users`
+--
+
+INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
+(1, 'Admin', 'admin@logbook.com', NULL, '$2y$12$s7q5j02qYKwwPK.9MC9sSeNJilqsKUK/HkFwHT2pJUhygHHx3O8Ti', NULL, '2026-01-20 01:17:49', '2026-01-20 01:17:49');
 
 --
 -- Indexes for dumped tables
@@ -270,19 +302,19 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT untuk tabel `logbook_insiden`
 --
 ALTER TABLE `logbook_insiden`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT untuk tabel `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
