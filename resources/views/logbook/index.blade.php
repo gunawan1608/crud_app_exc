@@ -33,7 +33,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-full mx-auto sm:px-6 lg:px-8">
             <!-- Alert Success -->
             @if (session('success'))
                 <div class="mb-4 bg-green-50 border-l-4 border-green-500 p-4">
@@ -60,80 +60,114 @@
 
             <!-- Card Table -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-green-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">No</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Pelapor</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Aplikasi</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Waktu Mulai</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Downtime</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse ($logbooks as $index => $logbook)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ $logbooks->firstItem() + $index }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">{{ $logbook->pelapor }}</div>
-                                            <div class="text-xs text-gray-500">{{ $logbook->metode_pelaporan }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $logbook->aplikasi ?? '-' }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $logbook->waktu_mulai->format('d/m/Y H:i') }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                                            {{ $logbook->getDowntimeFormatted() }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $logbook->status_color }}">
-                                                {{ $logbook->status_insiden }}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-green-50">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-bold text-green-800 uppercase w-12">No</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[140px]">Pelapor</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[120px]">Aplikasi</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[100px]">IP Server</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[150px]">Tipe Insiden</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[130px]">Waktu Mulai</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[130px]">Waktu Selesai</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[110px]">Downtime</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[80px]">SLA</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[200px]">Keterangan</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[140px]">Direspon Oleh</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[100px]">Status</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-green-800 uppercase w-24">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse ($logbooks as $index => $logbook)
+                                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                    <td class="px-3 py-4 text-sm text-gray-900 font-medium text-center">
+                                        {{ $logbooks->firstItem() + $index }}
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <div class="text-sm font-semibold text-gray-900">{{ $logbook->pelapor }}</div>
+                                        <div class="text-xs text-gray-500 mt-0.5">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                {{ $logbook->metode_pelaporan }}
                                             </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div class="flex space-x-2">
-                                                <a href="{{ route('logbook.edit', $logbook) }}" class="text-green-600 hover:text-green-900" title="Edit">
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                        {{ $logbook->aplikasi ?? '-' }}
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700 font-mono">
+                                        {{ $logbook->ip_server ?? '-' }}
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                        {{ $logbook->tipe_insiden ?? '-' }}
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                        <div class="font-medium">{{ $logbook->waktu_mulai->format('d/m/Y') }}</div>
+                                        <div class="text-xs text-gray-500">{{ $logbook->waktu_mulai->format('H:i') }}</div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                        <div class="font-medium">{{ $logbook->waktu_selesai->format('d/m/Y') }}</div>
+                                        <div class="text-xs text-gray-500">{{ $logbook->waktu_selesai->format('H:i') }}</div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm">
+                                        <div class="font-bold text-green-700">{{ $logbook->getDowntimeFormatted() }}</div>
+                                        <div class="text-xs text-gray-500">{{ $logbook->konversi_ke_jam }} jam</div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                        {{ $logbook->sla ?? '-' }}
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                        <div class="max-w-xs">
+                                            <p class="line-clamp-2" title="{{ $logbook->keterangan }}">
+                                                {{ Str::limit($logbook->keterangan, 80) }}
+                                            </p>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                        {{ $logbook->direspon_oleh }}
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $logbook->status_color }}">
+                                            {{ $logbook->status_insiden }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4 text-center">
+                                        <div class="flex items-center justify-center space-x-2">
+                                            <a href="{{ route('logbook.edit', $logbook) }}" class="text-green-600 hover:text-green-900 transition-colors" title="Edit">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                </svg>
+                                            </a>
+                                            <form action="{{ route('logbook.destroy', $logbook) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data dari {{ $logbook->pelapor }}?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900 transition-colors" title="Hapus">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                     </svg>
-                                                </a>
-                                                <form action="{{ route('logbook.destroy', $logbook) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data dari {{ $logbook->pelapor }}?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Hapus">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                        </svg>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                            </svg>
-                                            <p class="mt-2">Belum ada data insiden</p>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="13" class="px-6 py-12 text-center text-gray-500">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        <p class="mt-2 text-sm font-medium">Belum ada data insiden</p>
+                                        <p class="mt-1 text-xs text-gray-400">Klik tombol "Tambah Insiden" untuk menambahkan data</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
-                    <div class="mt-4">
-                        {{ $logbooks->links() }}
-                    </div>
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    {{ $logbooks->links() }}
                 </div>
             </div>
         </div>

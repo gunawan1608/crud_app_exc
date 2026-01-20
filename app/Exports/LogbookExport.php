@@ -7,9 +7,14 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithStyles
+class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths, WithTitle
 {
     /**
      * Get data collection
@@ -20,7 +25,7 @@ class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithSt
     }
 
     /**
-     * Header kolom Excel (sesuai template logbook)
+     * Header kolom Excel (lengkap dan terstruktur)
      */
     public function headings(): array
     {
@@ -28,18 +33,18 @@ class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithSt
             'No',
             'Pelapor',
             'Metode Pelaporan',
+            'Aplikasi',
+            'IP Server',
+            'Tipe Insiden',
             'Waktu Mulai',
             'Waktu Selesai',
             'Keterangan Waktu Selesai',
             'Downtime (Menit)',
             'Konversi ke Jam',
             'SLA',
-            'Persentase SLA Tahunan',
+            'Persentase SLA Tahunan (%)',
             'Keterangan SLA',
-            'Aplikasi',
-            'IP Server',
-            'Tipe Insiden',
-            'Keterangan',
+            'Keterangan Insiden',
             'Akar Penyebab',
             'Tindak Lanjut Detail',
             'Direspon Oleh',
@@ -57,48 +62,176 @@ class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithSt
 
         return [
             $no,
-            $logbook->pelapor,
-            $logbook->metode_pelaporan,
+            $logbook->pelapor ?? '',
+            $logbook->metode_pelaporan ?? '',
+            $logbook->aplikasi ?? '',
+            $logbook->ip_server ?? '',
+            $logbook->tipe_insiden ?? '',
             $logbook->waktu_mulai ? $logbook->waktu_mulai->format('d/m/Y H:i') : '',
             $logbook->waktu_selesai ? $logbook->waktu_selesai->format('d/m/Y H:i') : '',
-            $logbook->keterangan_waktu_selesai,
-            $logbook->downtime_menit,
-            $logbook->konversi_ke_jam,
-            $logbook->sla,
-            $logbook->persentase_sla_tahunan,
-            $logbook->keterangan_sla,
-            $logbook->aplikasi,
-            $logbook->ip_server,
-            $logbook->tipe_insiden,
-            $logbook->keterangan,
-            $logbook->akar_penyebab,
-            $logbook->tindak_lanjut_detail,
-            $logbook->direspon_oleh,
-            $logbook->status_insiden,
+            $logbook->keterangan_waktu_selesai ?? '',
+            $logbook->downtime_menit ?? 0,
+            $logbook->konversi_ke_jam ?? 0,
+            $logbook->sla ?? '',
+            $logbook->persentase_sla_tahunan ?? '',
+            $logbook->keterangan_sla ?? '',
+            $logbook->keterangan ?? '',
+            $logbook->akar_penyebab ?? '',
+            $logbook->tindak_lanjut_detail ?? '',
+            $logbook->direspon_oleh ?? '',
+            $logbook->status_insiden ?? '',
         ];
     }
 
     /**
-     * Styling Excel
+     * Lebar kolom yang optimal
+     */
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 5,   // No
+            'B' => 20,  // Pelapor
+            'C' => 15,  // Metode Pelaporan
+            'D' => 20,  // Aplikasi
+            'E' => 15,  // IP Server
+            'F' => 18,  // Tipe Insiden
+            'G' => 16,  // Waktu Mulai
+            'H' => 16,  // Waktu Selesai
+            'I' => 25,  // Keterangan Waktu Selesai
+            'J' => 12,  // Downtime (Menit)
+            'K' => 12,  // Konversi ke Jam
+            'L' => 10,  // SLA
+            'M' => 18,  // Persentase SLA Tahunan
+            'N' => 25,  // Keterangan SLA
+            'O' => 35,  // Keterangan Insiden
+            'P' => 30,  // Akar Penyebab
+            'Q' => 30,  // Tindak Lanjut Detail
+            'R' => 20,  // Direspon Oleh
+            'S' => 12,  // Status Insiden
+        ];
+    }
+
+    /**
+     * Nama sheet
+     */
+    public function title(): string
+    {
+        return 'Data Insiden';
+    }
+
+    /**
+     * Styling Excel yang lebih baik
      */
     public function styles(Worksheet $sheet)
     {
-        return [
-            // Style untuk header
-            1 => [
-                'font' => [
-                    'bold' => true,
-                    'color' => ['rgb' => 'FFFFFF'],
-                ],
-                'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '22C55E'], // Hijau
-                ],
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+        // Hitung jumlah baris data
+        $lastRow = $sheet->getHighestRow();
+
+        // Style untuk header (Baris 1)
+        $sheet->getStyle('A1:S1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 11,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '16A34A'], // Hijau modern
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+                'wrapText' => true,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
                 ],
             ],
-        ];
+        ]);
+
+        // Tinggi baris header
+        $sheet->getRowDimension(1)->setRowHeight(30);
+
+        // Style untuk data (Baris 2 sampai akhir)
+        if ($lastRow > 1) {
+            $sheet->getStyle('A2:S' . $lastRow)->applyFromArray([
+                'alignment' => [
+                    'vertical' => Alignment::VERTICAL_TOP,
+                    'wrapText' => true,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => 'D1D5DB'],
+                    ],
+                ],
+            ]);
+
+            // Kolom nomor di tengah
+            $sheet->getStyle('A2:A' . $lastRow)->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+            // Kolom angka (Downtime, Konversi, Persentase) rata kanan
+            $sheet->getStyle('J2:K' . $lastRow)->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle('M2:M' . $lastRow)->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+            // Status di tengah
+            $sheet->getStyle('S2:S' . $lastRow)->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+            // Warna baris selang-seling (Zebra striping)
+            for ($i = 2; $i <= $lastRow; $i++) {
+                if ($i % 2 == 0) {
+                    $sheet->getStyle('A' . $i . ':S' . $i)->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'F9FAFB'],
+                        ],
+                    ]);
+                }
+            }
+
+            // Warna status insiden
+            for ($i = 2; $i <= $lastRow; $i++) {
+                $status = $sheet->getCell('S' . $i)->getValue();
+
+                $bgColor = 'FFFFFF';
+                $textColor = '000000';
+
+                if ($status === 'Open') {
+                    $bgColor = 'FEE2E2'; // Red-100
+                    $textColor = '991B1B'; // Red-800
+                } elseif ($status === 'On Progress') {
+                    $bgColor = 'FEF3C7'; // Yellow-100
+                    $textColor = '92400E'; // Yellow-800
+                } elseif ($status === 'Closed') {
+                    $bgColor = 'D1FAE5'; // Green-100
+                    $textColor = '065F46'; // Green-800
+                }
+
+                $sheet->getStyle('S' . $i)->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => $bgColor],
+                    ],
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => $textColor],
+                    ],
+                ]);
+            }
+        }
+
+        // Freeze header
+        $sheet->freezePane('A2');
+
+        // Auto filter
+        $sheet->setAutoFilter('A1:S1');
+
+        return [];
     }
 }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 20 Jan 2026 pada 10.55
+-- Waktu pembuatan: 20 Jan 2026 pada 11.16
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.2.12
 
@@ -126,13 +126,6 @@ CREATE TABLE `logbook_insiden` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data untuk tabel `logbook_insiden`
---
-
-INSERT INTO `logbook_insiden` (`id`, `pelapor`, `metode_pelaporan`, `waktu_mulai`, `waktu_selesai`, `keterangan_waktu_selesai`, `downtime_menit`, `konversi_ke_jam`, `sla`, `persentase_sla_tahunan`, `keterangan_sla`, `aplikasi`, `ip_server`, `tipe_insiden`, `direspon_oleh`, `keterangan`, `akar_penyebab`, `tindak_lanjut_detail`, `status_insiden`, `created_at`, `updated_at`) VALUES
-(1, 'Bruce Banner', 'Langsung', '2026-01-20 16:50:00', '2026-01-21 16:50:00', 'Segera', 1440, 24.00, '88%', 10.00, 'SLA', 'www.youtube.com', '192.168.1.1', 'Software', 'Tony Stark', 'Satu tambah satu dua tambah tiga segini', 'Skibididob', 'Langkah - Langkah yang ini tuh gini gitu', 'On Progress', '2026-01-20 02:52:20', '2026-01-20 02:52:20');
-
 -- --------------------------------------------------------
 
 --
@@ -187,7 +180,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('0466hzIEaHFO6GDqV5lWm4Kne9zkVnU4EqtZzHKB', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiV21vY2wxMnMzY2plOG1iWnJ3VHpKRVhZb0Uxd0VaSGZZYklqSUdFcCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dib29rL2V4cG9ydCI7czo1OiJyb3V0ZSI7czoxMjoibG9nYm9vay5zaG93Ijt9czozOiJ1cmwiO2E6MDp7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1768902840);
+('0466hzIEaHFO6GDqV5lWm4Kne9zkVnU4EqtZzHKB', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiV21vY2wxMnMzY2plOG1iWnJ3VHpKRVhZb0Uxd0VaSGZZYklqSUdFcCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dib29rL2V4cG9ydCI7czo1OiJyb3V0ZSI7czoxNDoibG9nYm9vay5leHBvcnQiO31zOjM6InVybCI7YTowOnt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTt9', 1768904079);
 
 -- --------------------------------------------------------
 
@@ -302,7 +295,7 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT untuk tabel `logbook_insiden`
 --
 ALTER TABLE `logbook_insiden`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT untuk tabel `migrations`
