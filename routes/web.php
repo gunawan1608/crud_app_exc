@@ -17,12 +17,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Route Logbook Insiden (CRUD)
-    Route::resource('logbook', LogbookInsidenController::class);
-
-    // Route Import & Export
+    // Route Import & Export - HARUS SEBELUM resource route
     Route::post('/logbook/import', [LogbookInsidenController::class, 'import'])->name('logbook.import');
     Route::get('/logbook/export', [LogbookInsidenController::class, 'export'])->name('logbook.export');
+
+    // Route Logbook Insiden (CRUD)
+    Route::resource('logbook', LogbookInsidenController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';

@@ -6,13 +6,11 @@ use App\Models\LogbookInsiden;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
 
 class LogbookImport implements ToModel, WithHeadingRow
 {
     /**
      * Map kolom Excel ke database
-     * Asumsi header Excel menggunakan nama kolom yang sesuai
      */
     public function model(array $row)
     {
@@ -35,7 +33,7 @@ class LogbookImport implements ToModel, WithHeadingRow
             'waktu_mulai' => $waktuMulai,
             'waktu_selesai' => $waktuSelesai,
             'keterangan_waktu_selesai' => $row['keterangan_waktu_selesai'] ?? null,
-            'lama_downtime' => $lamaDowntime,
+            'downtime_menit' => $lamaDowntime,
             'konversi_ke_jam' => $konversiJam,
             'sla' => $row['sla'] ?? null,
             'persentase_sla_tahunan' => $row['persentase_sla_tahunan'] ?? null,
