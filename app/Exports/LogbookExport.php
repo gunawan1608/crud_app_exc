@@ -6,15 +6,16 @@ use App\Models\LogbookInsiden;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 
-class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths, WithTitle
+class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithColumnWidths, WithTitle,WithEvents
 {
     /**
      * Get data collection
@@ -122,116 +123,130 @@ class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithSt
     /**
      * Styling Excel yang lebih baik
      */
-    public function styles(Worksheet $sheet)
-    {
-        // Hitung jumlah baris data
-        $lastRow = $sheet->getHighestRow();
+  public function registerEvents(): array
+{
+    return [
+        AfterSheet::class => function (AfterSheet $event) {
 
-        // Style untuk header (Baris 1)
-        $sheet->getStyle('A1:S1')->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'color' => ['rgb' => 'FFFFFF'],
-                'size' => 11,
-            ],
-            'fill' => [
-                'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['rgb' => '16A34A'], // Hijau modern
-            ],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER,
-                'wrapText' => true,
-            ],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => '000000'],
+            $sheet = $event->sheet->getDelegate();
+            $lastRow = $sheet->getHighestRow();
+
+            // === HEADER ===
+            $sheet->getStyle('A1:S1')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => 'FFFFFF'],
+                    'size' => 11,
                 ],
-            ],
-        ]);
-
-        // Tinggi baris header
-        $sheet->getRowDimension(1)->setRowHeight(30);
-
-        // Style untuk data (Baris 2 sampai akhir)
-        if ($lastRow > 1) {
-            $sheet->getStyle('A2:S' . $lastRow)->applyFromArray([
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '16A34A'],
+                ],
                 'alignment' => [
-                    'vertical' => Alignment::VERTICAL_TOP,
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
                     'wrapText' => true,
                 ],
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['rgb' => 'D1D5DB'],
+                        'color' => ['rgb' => '000000'],
                     ],
                 ],
             ]);
 
-            // Kolom nomor di tengah
-            $sheet->getStyle('A2:A' . $lastRow)->getAlignment()
-                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getRowDimension(1)->setRowHeight(30);
 
-            // Kolom angka (Downtime, Konversi, Persentase) rata kanan
-            $sheet->getStyle('J2:K' . $lastRow)->getAlignment()
-                ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-            $sheet->getStyle('M2:M' . $lastRow)->getAlignment()
-                ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-
-            // Status di tengah
-            $sheet->getStyle('S2:S' . $lastRow)->getAlignment()
-                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-            // Warna baris selang-seling (Zebra striping)
-            for ($i = 2; $i <= $lastRow; $i++) {
-                if ($i % 2 == 0) {
-                    $sheet->getStyle('A' . $i . ':S' . $i)->applyFromArray([
-                        'fill' => [
-                            'fillType' => Fill::FILL_SOLID,
-                            'startColor' => ['rgb' => 'F9FAFB'],
-                        ],
-                    ]);
-                }
-            }
-
-            // Warna status insiden
-            for ($i = 2; $i <= $lastRow; $i++) {
-                $status = $sheet->getCell('S' . $i)->getValue();
-
-                $bgColor = 'FFFFFF';
-                $textColor = '000000';
-
-                if ($status === 'Open') {
-                    $bgColor = 'FEE2E2'; // Red-100
-                    $textColor = '991B1B'; // Red-800
-                } elseif ($status === 'On Progress') {
-                    $bgColor = 'FEF3C7'; // Yellow-100
-                    $textColor = '92400E'; // Yellow-800
-                } elseif ($status === 'Closed') {
-                    $bgColor = 'D1FAE5'; // Green-100
-                    $textColor = '065F46'; // Green-800
-                }
-
-                $sheet->getStyle('S' . $i)->applyFromArray([
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => $bgColor],
+            // === DATA BORDER ===
+            if ($lastRow > 1) {
+                $sheet->getStyle("A2:S{$lastRow}")->applyFromArray([
+                    'alignment' => [
+                        'vertical' => Alignment::VERTICAL_TOP,
+                        'wrapText' => true,
                     ],
-                    'font' => [
-                        'bold' => true,
-                        'color' => ['rgb' => $textColor],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => ['rgb' => '000000'],
+                        ],
                     ],
                 ]);
+
+                // Zebra striping
+                for ($i = 2; $i <= $lastRow; $i++) {
+                    if ($i % 2 === 0) {
+                        $sheet->getStyle("A{$i}:S{$i}")->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => ['rgb' => 'F9FAFB'],
+                            ],
+                        ]);
+                    }
+                }
+
+                // Kolom alignment
+                $sheet->getStyle("A2:A{$lastRow}")
+                    ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                $sheet->getStyle("J2:K{$lastRow}")
+                    ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+                $sheet->getStyle("M2:M{$lastRow}")
+                    ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+                $sheet->getStyle("S2:S{$lastRow}")
+                    ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                // Status warna
+                for ($i = 2; $i <= $lastRow; $i++) {
+                    $status = $sheet->getCell("S{$i}")->getValue();
+
+                    if ($status === 'Open') {
+                        $sheet->getStyle("S{$i}")->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => ['rgb' => 'FEE2E2'],
+                            ],
+                            'font' => [
+                                'bold' => true,
+                                'color' => ['rgb' => '991B1B'],
+                            ],
+                        ]);
+                    }
+
+                    if ($status === 'On Progress') {
+                        $sheet->getStyle("S{$i}")->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => ['rgb' => 'FEF3C7'],
+                            ],
+                            'font' => [
+                                'bold' => true,
+                                'color' => ['rgb' => '92400E'],
+                            ],
+                        ]);
+                    }
+
+                    if ($status === 'Closed') {
+                        $sheet->getStyle("S{$i}")->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => ['rgb' => 'D1FAE5'],
+                            ],
+                            'font' => [
+                                'bold' => true,
+                                'color' => ['rgb' => '065F46'],
+                            ],
+                        ]);
+                    }
+                }
             }
+
+            // Freeze & filter
+            $sheet->freezePane('A2');
+            $sheet->setAutoFilter("A1:S{$lastRow}");
         }
+    ];
+}
 
-        // Freeze header
-        $sheet->freezePane('A2');
-
-        // Auto filter
-        $sheet->setAutoFilter('A1:S1');
-
-        return [];
-    }
 }
