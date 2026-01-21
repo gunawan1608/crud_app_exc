@@ -1,27 +1,43 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LogbookInsidenController;
-use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
+// ROOT → LOGIN PAGE
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect('/login');
 });
 
+// LOGIN PAGE (GET)
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+// DASHBOARD
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware('auth')->name('dashboard');
 
+// PROTECTED ROUTES
 Route::middleware('auth')->group(function () {
+
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Route Import & Export - HARUS SEBELUM resource route
+    // Import & Export
     Route::post('/logbook/import', [LogbookInsidenController::class, 'import'])->name('logbook.import');
     Route::get('/logbook/export', [LogbookInsidenController::class, 'export'])->name('logbook.export');
 
-    // Route Logbook Insiden (CRUD)
+    // CRUD Logbook
     Route::resource('logbook', LogbookInsidenController::class)->except(['show']);
 });
 
