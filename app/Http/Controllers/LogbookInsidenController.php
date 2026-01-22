@@ -17,7 +17,17 @@ class LogbookInsidenController extends Controller
     public function index()
     {
         $logbooks = LogbookInsiden::latest()->paginate(10);
-        return view('logbook.index', compact('logbooks'));
+
+        // Hitung SLA tahunan untuk ditampilkan
+        $slaTahunan = LogbookInsiden::hitungSlaTahunan();
+
+        // Ambil target SLA terendah sebagai referensi atau gunakan default
+        $targetSla = LogbookInsiden::min('target_sla') ?? 98.00;
+
+        // Tentukan status SLA berdasarkan target
+        $statusSla = LogbookInsiden::tentukanStatusSla($targetSla);
+
+        return view('logbook.index', compact('logbooks', 'slaTahunan', 'targetSla', 'statusSla'));
     }
 
     /**
@@ -25,7 +35,10 @@ class LogbookInsidenController extends Controller
      */
     public function create()
     {
-        return view('logbook.create');
+        $slaTahunan = LogbookInsiden::hitungSlaTahunan();
+        $targetSla = 98.00; // Default target
+
+        return view('logbook.create', compact('slaTahunan', 'targetSla'));
     }
 
     /**
@@ -39,7 +52,6 @@ class LogbookInsidenController extends Controller
             'waktu_mulai' => 'required|date',
             'waktu_selesai' => 'required|date|after:waktu_mulai',
             'keterangan_waktu_selesai' => 'nullable|string',
-            'sla' => 'nullable|numeric|min:0|max:100', // SLA target (%)
             'keterangan_sla' => 'nullable|string',
             'aplikasi' => 'nullable|string|max:100',
             'ip_server' => 'nullable|ip',
@@ -49,39 +61,36 @@ class LogbookInsidenController extends Controller
             'tindak_lanjut_detail' => 'nullable|string',
             'direspon_oleh' => 'required|string',
             'status_insiden' => 'required|in:Open,On Progress,Closed',
+            'target_sla' => 'required|numeric|min:0|max:100', // SATU-SATUNYA INPUT SLA DARI USER
         ]);
 
         // =========================
-        // HITUNG DOWNTIME
+        // HITUNG DOWNTIME (OTOMATIS)
         // =========================
-        $waktuMulai   = Carbon::parse($validated['waktu_mulai']);
+        $waktuMulai = Carbon::parse($validated['waktu_mulai']);
         $waktuSelesai = Carbon::parse($validated['waktu_selesai']);
-
         $lamaDowntime = $waktuMulai->diffInMinutes($waktuSelesai);
-        $konversiJam  = round($lamaDowntime / 60, 2);
+        $konversiJam = round($lamaDowntime / 60, 2);
 
         // =========================
-        // HITUNG SLA TAHUNAN (AUTO)
+        // HITUNG SLA PER KEJADIAN (OTOMATIS)
+        // Formula: SLA_per_kejadian = 100 - (downtime_jam / 8760 * 100)
         // =========================
-        $totalMenitTahunan = 525600; // 365 hari
-        $persentaseSlaTahunan = round(
-            (($totalMenitTahunan - $lamaDowntime) / $totalMenitTahunan) * 100,
-            2
-        );
+        $jamTahunan = 8760;
+        $slaPerKejadian = 100 - (($konversiJam / $jamTahunan) * 100);
+        $slaPerKejadian = round($slaPerKejadian, 6);
 
         // =========================
-        // LOGIC IF ALA EXCEL
+        // HITUNG KONTRIBUSI SLA TAHUNAN (OTOMATIS)
+        // Formula: 100 - SLA_per_kejadian
         // =========================
-        $slaTarget = $validated['sla']; // misal 98
-
-        $statusSla = $persentaseSlaTahunan >= $slaTarget
-            ? 'SLA Tercapai'
-            : 'SLA Tidak Tercapai';
+        $kontribusiSlaTahunan = 100 - $slaPerKejadian;
+        $kontribusiSlaTahunan = round($kontribusiSlaTahunan, 6);
 
         // =========================
         // SIMPAN DATA
         // =========================
-        LogbookInsiden::create([
+        $logbook = LogbookInsiden::create([
             'pelapor' => $validated['pelapor'],
             'metode_pelaporan' => $validated['metode_pelaporan'],
             'waktu_mulai' => $validated['waktu_mulai'],
@@ -89,11 +98,10 @@ class LogbookInsidenController extends Controller
             'keterangan_waktu_selesai' => $validated['keterangan_waktu_selesai'],
             'downtime_menit' => $lamaDowntime,
             'konversi_ke_jam' => $konversiJam,
-
-            'sla' => $slaTarget,
-            'persentase_sla_tahunan' => $persentaseSlaTahunan,
-            'status_sla' => $statusSla,
-
+            'sla' => $slaPerKejadian, // AUTO-CALCULATED
+            'persentase_sla_tahunan' => $kontribusiSlaTahunan, // AUTO-CALCULATED
+            'target_sla' => $validated['target_sla'], // USER INPUT (satu-satunya)
+            'status_sla' => null, // Akan diupdate di bawah
             'keterangan_sla' => $validated['keterangan_sla'],
             'aplikasi' => $validated['aplikasi'],
             'ip_server' => $validated['ip_server'],
@@ -105,17 +113,26 @@ class LogbookInsidenController extends Controller
             'status_insiden' => $validated['status_insiden'],
         ]);
 
+        // =========================
+        // HITUNG STATUS SLA (OTOMATIS)
+        // Bandingkan SLA Tahunan dengan Target SLA
+        // =========================
+        $statusSla = LogbookInsiden::tentukanStatusSla($validated['target_sla']);
+        $logbook->update(['status_sla' => $statusSla]);
+
         return redirect()->route('logbook.index')
             ->with('success', 'Data insiden berhasil ditambahkan');
     }
-
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(LogbookInsiden $logbook)
     {
-        return view('logbook.edit', compact('logbook'));
+        $slaTahunan = LogbookInsiden::hitungSlaTahunan();
+        $targetSla = 98.00; // Default, akan diambil dari data logbook
+
+        return view('logbook.edit', compact('logbook', 'slaTahunan', 'targetSla'));
     }
 
     /**
@@ -129,7 +146,6 @@ class LogbookInsidenController extends Controller
             'waktu_mulai' => 'required|date',
             'waktu_selesai' => 'required|date|after:waktu_mulai',
             'keterangan_waktu_selesai' => 'nullable|string',
-            'sla' => 'nullable|numeric|min:0|max:100',
             'keterangan_sla' => 'nullable|string',
             'aplikasi' => 'nullable|string|max:100',
             'ip_server' => 'nullable|ip',
@@ -139,36 +155,31 @@ class LogbookInsidenController extends Controller
             'tindak_lanjut_detail' => 'nullable|string',
             'direspon_oleh' => 'required|string',
             'status_insiden' => 'required|in:Open,On Progress,Closed',
+            'target_sla' => 'required|numeric|min:0|max:100', // SATU-SATUNYA INPUT SLA DARI USER
         ]);
 
         // =========================
-        // HITUNG DOWNTIME
+        // HITUNG DOWNTIME (OTOMATIS)
         // =========================
-        $waktuMulai   = Carbon::parse($validated['waktu_mulai']);
+        $waktuMulai = Carbon::parse($validated['waktu_mulai']);
         $waktuSelesai = Carbon::parse($validated['waktu_selesai']);
-
         $lamaDowntime = $waktuMulai->diffInMinutes($waktuSelesai);
-        $konversiJam  = round($lamaDowntime / 60, 2);
+        $konversiJam = round($lamaDowntime / 60, 2);
 
         // =========================
-        // HITUNG SLA TAHUNAN
+        // HITUNG SLA PER KEJADIAN (OTOMATIS)
+        // Formula: SLA_per_kejadian = 100 - (downtime_jam / 8760 * 100)
         // =========================
-        $totalMenitTahunan = 525600;
-        $persentaseSlaTahunan = round(
-            (($totalMenitTahunan - $lamaDowntime) / $totalMenitTahunan) * 100,
-            2
-        );
+        $jamTahunan = 8760;
+        $slaPerKejadian = 100 - (($konversiJam / $jamTahunan) * 100);
+        $slaPerKejadian = round($slaPerKejadian, 6);
 
         // =========================
-        // LOGIKA STATUS SLA
+        // HITUNG KONTRIBUSI SLA TAHUNAN (OTOMATIS)
+        // Formula: 100 - SLA_per_kejadian
         // =========================
-        $slaTarget = $validated['sla'];
-
-        $statusSla = $slaTarget !== null
-            ? ($persentaseSlaTahunan >= $slaTarget
-                ? 'SLA Tercapai'
-                : 'SLA Tidak Tercapai')
-            : null;
+        $kontribusiSlaTahunan = 100 - $slaPerKejadian;
+        $kontribusiSlaTahunan = round($kontribusiSlaTahunan, 6);
 
         // =========================
         // UPDATE DATA
@@ -181,11 +192,9 @@ class LogbookInsidenController extends Controller
             'keterangan_waktu_selesai' => $validated['keterangan_waktu_selesai'],
             'downtime_menit' => $lamaDowntime,
             'konversi_ke_jam' => $konversiJam,
-
-            'sla' => $slaTarget,
-            'persentase_sla_tahunan' => $persentaseSlaTahunan,
-            'status_sla' => $statusSla,
-
+            'sla' => $slaPerKejadian, // AUTO-CALCULATED
+            'persentase_sla_tahunan' => $kontribusiSlaTahunan, // AUTO-CALCULATED
+            'target_sla' => $validated['target_sla'], // USER INPUT (satu-satunya)
             'keterangan_sla' => $validated['keterangan_sla'],
             'aplikasi' => $validated['aplikasi'],
             'ip_server' => $validated['ip_server'],
@@ -197,15 +206,28 @@ class LogbookInsidenController extends Controller
             'status_insiden' => $validated['status_insiden'],
         ]);
 
+        // =========================
+        // HITUNG STATUS SLA (OTOMATIS)
+        // Bandingkan SLA Tahunan dengan Target SLA
+        // =========================
+        $statusSla = LogbookInsiden::tentukanStatusSla($validated['target_sla']);
+        $logbook->update(['status_sla' => $statusSla]);
+
         return redirect()->route('logbook.index')
             ->with('success', 'Data insiden berhasil diperbarui');
     }
+
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(LogbookInsiden $logbook)
     {
         $logbook->delete();
+
+        // Recalculate status SLA setelah delete
+        $targetSla = 98;
+        $statusSla = LogbookInsiden::tentukanStatusSla($targetSla);
+
         return redirect()->route('logbook.index')
             ->with('success', 'Data insiden berhasil dihapus');
     }
@@ -216,7 +238,7 @@ class LogbookInsidenController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv|max:5120', // Max 5MB
+            'file' => 'required|mimes:xlsx,xls,csv|max:5120',
         ], [
             'file.required' => 'File Excel wajib dipilih',
             'file.mimes' => 'File harus berformat Excel (.xlsx, .xls, atau .csv)',
@@ -225,6 +247,9 @@ class LogbookInsidenController extends Controller
 
         try {
             Excel::import(new LogbookImport, $request->file('file'));
+
+            // Recalculate all SLA after import
+            $this->recalculateAllSla();
 
             return redirect()->route('logbook.index')
                 ->with('success', 'Data berhasil diimport dari Excel');
@@ -240,5 +265,36 @@ class LogbookInsidenController extends Controller
     public function export()
     {
         return Excel::download(new LogbookExport, 'logbook-insiden-' . date('Y-m-d') . '.xlsx');
+    }
+
+    /**
+     * Recalculate all SLA data
+     */
+    private function recalculateAllSla()
+    {
+        $logbooks = LogbookInsiden::all();
+
+        foreach ($logbooks as $logbook) {
+            $konversiJam = $logbook->konversi_ke_jam;
+            $jamTahunan = 8760;
+
+            // Hitung SLA per kejadian
+            $slaPerKejadian = 100 - (($konversiJam / $jamTahunan) * 100);
+            $slaPerKejadian = round($slaPerKejadian, 6);
+
+            // Hitung kontribusi SLA tahunan
+            $kontribusiSlaTahunan = 100 - $slaPerKejadian;
+            $kontribusiSlaTahunan = round($kontribusiSlaTahunan, 6);
+
+            $logbook->update([
+                'sla' => $slaPerKejadian,
+                'persentase_sla_tahunan' => $kontribusiSlaTahunan,
+            ]);
+        }
+
+        // Update status SLA untuk semua data berdasarkan target minimum
+        $targetSla = LogbookInsiden::min('target_sla') ?? 98.00;
+        $statusSla = LogbookInsiden::tentukanStatusSla($targetSla);
+        LogbookInsiden::query()->update(['status_sla' => $statusSla]);
     }
 }

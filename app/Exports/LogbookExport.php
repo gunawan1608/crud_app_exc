@@ -15,7 +15,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithColumnWidths, WithTitle,WithEvents
+class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithColumnWidths, WithTitle, WithEvents
 {
     /**
      * Get data collection
@@ -26,7 +26,7 @@ class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithCo
     }
 
     /**
-     * Header kolom Excel (lengkap dan terstruktur)
+     * Header kolom Excel
      */
     public function headings(): array
     {
@@ -42,8 +42,10 @@ class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithCo
             'Keterangan Waktu Selesai',
             'Downtime (Menit)',
             'Konversi ke Jam',
-            'SLA',
-            'Persentase SLA Tahunan (%)',
+            'SLA Per Kejadian (%)',
+            'Kontribusi SLA Tahunan',
+            'Target SLA (%)',
+            'Status SLA',
             'Keterangan SLA',
             'Keterangan Insiden',
             'Akar Penyebab',
@@ -73,8 +75,10 @@ class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithCo
             $logbook->keterangan_waktu_selesai ?? '',
             $logbook->downtime_menit ?? 0,
             $logbook->konversi_ke_jam ?? 0,
-            $logbook->sla ?? '',
-            $logbook->persentase_sla_tahunan ?? '',
+            $logbook->sla ? number_format($logbook->sla, 6) : '0.000000',
+            $logbook->persentase_sla_tahunan ? number_format($logbook->persentase_sla_tahunan, 6) : '0.000000',
+            $logbook->target_sla ? number_format($logbook->target_sla, 2) : '98.00',
+            $logbook->status_sla ?? '',
             $logbook->keterangan_sla ?? '',
             $logbook->keterangan ?? '',
             $logbook->akar_penyebab ?? '',
@@ -85,7 +89,7 @@ class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithCo
     }
 
     /**
-     * Lebar kolom yang optimal
+     * Lebar kolom
      */
     public function columnWidths(): array
     {
@@ -101,14 +105,16 @@ class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithCo
             'I' => 25,  // Keterangan Waktu Selesai
             'J' => 12,  // Downtime (Menit)
             'K' => 12,  // Konversi ke Jam
-            'L' => 10,  // SLA
-            'M' => 18,  // Persentase SLA Tahunan
-            'N' => 25,  // Keterangan SLA
-            'O' => 35,  // Keterangan Insiden
-            'P' => 30,  // Akar Penyebab
-            'Q' => 30,  // Tindak Lanjut Detail
-            'R' => 20,  // Direspon Oleh
-            'S' => 12,  // Status Insiden
+            'L' => 15,  // SLA Per Kejadian
+            'M' => 18,  // Kontribusi SLA Tahunan
+            'N' => 12,  // Target SLA
+            'O' => 15,  // Status SLA
+            'P' => 25,  // Keterangan SLA
+            'Q' => 35,  // Keterangan Insiden
+            'R' => 30,  // Akar Penyebab
+            'S' => 30,  // Tindak Lanjut Detail
+            'T' => 20,  // Direspon Oleh
+            'U' => 12,  // Status Insiden
         ];
     }
 
@@ -121,47 +127,29 @@ class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithCo
     }
 
     /**
-     * Styling Excel yang lebih baik
+     * Styling Excel
      */
-  public function registerEvents(): array
-{
-    return [
-        AfterSheet::class => function (AfterSheet $event) {
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $lastRow = $sheet->getHighestRow();
 
-            $sheet = $event->sheet->getDelegate();
-            $lastRow = $sheet->getHighestRow();
-
-            // === HEADER ===
-            $sheet->getStyle('A1:S1')->applyFromArray([
-                'font' => [
-                    'bold' => true,
-                    'color' => ['rgb' => 'FFFFFF'],
-                    'size' => 11,
-                ],
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '16A34A'],
-                ],
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                    'wrapText' => true,
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['rgb' => '000000'],
+                // === HEADER ===
+                $sheet->getStyle('A1:U1')->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => 'FFFFFF'],
+                        'size' => 11,
                     ],
-                ],
-            ]);
-
-            $sheet->getRowDimension(1)->setRowHeight(30);
-
-            // === DATA BORDER ===
-            if ($lastRow > 1) {
-                $sheet->getStyle("A2:S{$lastRow}")->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => '16A34A'],
+                    ],
                     'alignment' => [
-                        'vertical' => Alignment::VERTICAL_TOP,
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
                         'wrapText' => true,
                     ],
                     'borders' => [
@@ -172,81 +160,165 @@ class LogbookExport implements FromCollection, WithHeadings, WithMapping, WithCo
                     ],
                 ]);
 
-                // Zebra striping
-                for ($i = 2; $i <= $lastRow; $i++) {
-                    if ($i % 2 === 0) {
-                        $sheet->getStyle("A{$i}:S{$i}")->applyFromArray([
-                            'fill' => [
-                                'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => 'F9FAFB'],
+                $sheet->getRowDimension(1)->setRowHeight(30);
+
+                // === DATA BORDER ===
+                if ($lastRow > 1) {
+                    $sheet->getStyle("A2:U{$lastRow}")->applyFromArray([
+                        'alignment' => [
+                            'vertical' => Alignment::VERTICAL_TOP,
+                            'wrapText' => true,
+                        ],
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                                'color' => ['rgb' => '000000'],
                             ],
-                        ]);
+                        ],
+                    ]);
+
+                    // Zebra striping
+                    for ($i = 2; $i <= $lastRow; $i++) {
+                        if ($i % 2 === 0) {
+                            $sheet->getStyle("A{$i}:U{$i}")->applyFromArray([
+                                'fill' => [
+                                    'fillType' => Fill::FILL_SOLID,
+                                    'startColor' => ['rgb' => 'F9FAFB'],
+                                ],
+                            ]);
+                        }
                     }
+
+                    // Kolom alignment
+                    $sheet->getStyle("A2:A{$lastRow}")
+                        ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                    $sheet->getStyle("J2:N{$lastRow}")
+                        ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+                    // Highlight SLA columns
+                    $sheet->getStyle("L2:L{$lastRow}")->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'DBEAFE'],
+                        ],
+                    ]);
+
+                    $sheet->getStyle("M2:M{$lastRow}")->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'E0E7FF'],
+                        ],
+                    ]);
+
+                    // Highlight Target SLA column
+                    $sheet->getStyle("N2:N{$lastRow}")->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'FED7AA'],
+                        ],
+                        'font' => [
+                            'bold' => true,
+                        ],
+                    ]);
+
+                    // Status SLA warna
+                    for ($i = 2; $i <= $lastRow; $i++) {
+                        $statusSla = $sheet->getCell("O{$i}")->getValue();
+
+                        if ($statusSla === 'TERCAPAI') {
+                            $sheet->getStyle("O{$i}")->applyFromArray([
+                                'fill' => [
+                                    'fillType' => Fill::FILL_SOLID,
+                                    'startColor' => ['rgb' => 'D1FAE5'],
+                                ],
+                                'font' => [
+                                    'bold' => true,
+                                    'color' => ['rgb' => '065F46'],
+                                ],
+                            ]);
+                        } elseif ($statusSla === 'TIDAK TERCAPAI') {
+                            $sheet->getStyle("O{$i}")->applyFromArray([
+                                'fill' => [
+                                    'fillType' => Fill::FILL_SOLID,
+                                    'startColor' => ['rgb' => 'FEE2E2'],
+                                ],
+                                'font' => [
+                                    'bold' => true,
+                                    'color' => ['rgb' => '991B1B'],
+                                ],
+                            ]);
+                        }
+
+                        // Status Insiden warna
+                        $status = $sheet->getCell("U{$i}")->getValue();
+
+                        if ($status === 'Open') {
+                            $sheet->getStyle("U{$i}")->applyFromArray([
+                                'fill' => [
+                                    'fillType' => Fill::FILL_SOLID,
+                                    'startColor' => ['rgb' => 'FEE2E2'],
+                                ],
+                                'font' => [
+                                    'bold' => true,
+                                    'color' => ['rgb' => '991B1B'],
+                                ],
+                            ]);
+                        } elseif ($status === 'On Progress') {
+                            $sheet->getStyle("U{$i}")->applyFromArray([
+                                'fill' => [
+                                    'fillType' => Fill::FILL_SOLID,
+                                    'startColor' => ['rgb' => 'FEF3C7'],
+                                ],
+                                'font' => [
+                                    'bold' => true,
+                                    'color' => ['rgb' => '92400E'],
+                                ],
+                            ]);
+                        } elseif ($status === 'Closed') {
+                            $sheet->getStyle("U{$i}")->applyFromArray([
+                                'fill' => [
+                                    'fillType' => Fill::FILL_SOLID,
+                                    'startColor' => ['rgb' => 'D1FAE5'],
+                                ],
+                                'font' => [
+                                    'bold' => true,
+                                    'color' => ['rgb' => '065F46'],
+                                ],
+                            ]);
+                        }
+                    }
+
+                    // Add summary row for SLA Tahunan
+                    $summaryRow = $lastRow + 2;
+                    $sheet->setCellValue("K{$summaryRow}", 'SLA Tahunan:');
+                    $sheet->getStyle("K{$summaryRow}")->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 12],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
+                    ]);
+
+                    $slaTahunan = LogbookInsiden::hitungSlaTahunan();
+                    $sheet->setCellValue("L{$summaryRow}", number_format($slaTahunan, 2) . '%');
+                    $sheet->getStyle("L{$summaryRow}")->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => '1E40AF']],
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'DBEAFE'],
+                        ],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                        'borders' => [
+                            'outline' => [
+                                'borderStyle' => Border::BORDER_MEDIUM,
+                                'color' => ['rgb' => '1E40AF'],
+                            ],
+                        ],
+                    ]);
                 }
 
-                // Kolom alignment
-                $sheet->getStyle("A2:A{$lastRow}")
-                    ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-                $sheet->getStyle("J2:K{$lastRow}")
-                    ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-
-                $sheet->getStyle("M2:M{$lastRow}")
-                    ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-
-                $sheet->getStyle("S2:S{$lastRow}")
-                    ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-                // Status warna
-                for ($i = 2; $i <= $lastRow; $i++) {
-                    $status = $sheet->getCell("S{$i}")->getValue();
-
-                    if ($status === 'Open') {
-                        $sheet->getStyle("S{$i}")->applyFromArray([
-                            'fill' => [
-                                'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => 'FEE2E2'],
-                            ],
-                            'font' => [
-                                'bold' => true,
-                                'color' => ['rgb' => '991B1B'],
-                            ],
-                        ]);
-                    }
-
-                    if ($status === 'On Progress') {
-                        $sheet->getStyle("S{$i}")->applyFromArray([
-                            'fill' => [
-                                'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => 'FEF3C7'],
-                            ],
-                            'font' => [
-                                'bold' => true,
-                                'color' => ['rgb' => '92400E'],
-                            ],
-                        ]);
-                    }
-
-                    if ($status === 'Closed') {
-                        $sheet->getStyle("S{$i}")->applyFromArray([
-                            'fill' => [
-                                'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => 'D1FAE5'],
-                            ],
-                            'font' => [
-                                'bold' => true,
-                                'color' => ['rgb' => '065F46'],
-                            ],
-                        ]);
-                    }
-                }
+                // Freeze & filter
+                $sheet->freezePane('A2');
+                $sheet->setAutoFilter("A1:U{$lastRow}");
             }
-
-            // Freeze & filter
-            $sheet->freezePane('A2');
-            $sheet->setAutoFilter("A1:S{$lastRow}");
-        }
-    ];
-}
-
+        ];
+    }
 }

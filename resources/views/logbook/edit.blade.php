@@ -1,14 +1,26 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center">
-            <a href="{{ route('logbook.index') }}" class="mr-4 text-gray-600 hover:text-gray-900">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-            </a>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Edit Data Insiden
-            </h2>
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <a href="{{ route('logbook.index') }}" class="mr-4 text-gray-600 hover:text-gray-900">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </a>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    Edit Data Insiden
+                </h2>
+            </div>
+
+            <!-- Info SLA Tahunan -->
+            <div class="bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium text-blue-700">SLA Tahunan Saat Ini:</span>
+                    <span class="text-lg font-bold text-blue-900">{{ number_format($slaTahunan, 2) }}%</span>
+                    <span class="text-xs text-blue-600">(Target: {{ $targetSla }}%)</span>
+                </div>
+            </div>
         </div>
     </x-slot>
 
@@ -99,49 +111,92 @@
                                     placeholder="Catatan tambahan tentang waktu penyelesaian...">{{ old('keterangan_waktu_selesai', $logbook->keterangan_waktu_selesai) }}</textarea>
                             </div>
 
+                            <!-- Info Downtime Saat Ini -->
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+                                <div class="flex">
+                                    <svg class="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-blue-700 font-medium">Downtime saat ini: {{ $logbook->getDowntimeFormatted() }}</p>
+                                        <p class="text-xs text-blue-600 mt-1">SLA Biasa: {{ number_format($logbook->sla ?? 0, 4) }}% (Auto-calculated)</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="bg-green-50 border-l-4 border-green-500 p-4">
                                 <div class="flex">
                                     <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        <path fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                            clip-rule="evenodd" />
                                     </svg>
                                     <div class="ml-3">
-                                        <p class="text-sm text-green-700 font-medium">Downtime saat ini: {{ $logbook->getDowntimeFormatted() }}</p>
-                                        <p class="text-xs text-green-600 mt-1">Akan dihitung ulang otomatis setelah update</p>
+                                        <p class="text-sm text-green-700 font-medium">Downtime dan SLA akan dihitung ulang otomatis</p>
+                                        <p class="text-xs text-green-600 mt-1">Sistem akan memperbarui: Downtime, SLA Biasa, dan SLA Tahunan</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- SLA -->
+                        <!-- SLA Configuration -->
                         <div class="border-b border-gray-200 pb-4 mb-6">
-                            <h3 class="text-lg font-semibold text-green-700 mb-4">Service Level Agreement (SLA)</h3>
+                            <h3 class="text-lg font-semibold text-green-700 mb-4">Konfigurasi SLA</h3>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                <h4 class="font-semibold text-blue-900 mb-3">📋 Informasi SLA (Auto-Calculate)</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+                                    <div class="space-y-2">
+                                        <p>✓ <strong>SLA Per Kejadian</strong> = Dihitung dari downtime</p>
+                                        <p>✓ <strong>SLA Tahunan</strong> = Akumulasi semua SLA</p>
+                                        <p class="text-xs text-blue-600 font-medium">⚠️ User HANYA input: Downtime & Target SLA</p>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <p>📊 <strong>SLA Saat Ini:</strong> {{ number_format($logbook->sla ?? 0, 4) }}%</p>
+                                        <p>🎯 <strong>Target:</strong> {{ number_format($logbook->target_sla ?? 98, 2) }}%</p>
+                                        <p>📈 <strong>Status:</strong> {{ $logbook->status_sla ?? 'Belum Dihitung' }}</p>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label for="sla" class="block font-medium text-sm text-gray-700">SLA</label>
-                                    <input id="sla" type="text" name="sla" value="{{ old('sla', $logbook->sla) }}"
+                                    <label for="target_sla" class="block font-medium text-sm text-gray-700">
+                                        Target SLA (%) <span class="text-red-500">*</span>
+                                    </label>
+                                    <input id="target_sla" type="number" step="0.01" name="target_sla"
+                                        value="{{ old('target_sla', $logbook->target_sla ?? 98.00) }}"
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full"
-                                        placeholder="Contoh: 99.9%">
+                                        placeholder="98.00" required>
+                                    <p class="text-xs text-gray-500 mt-1">Target SLA sebagai pembanding (standar: 98%)</p>
                                 </div>
 
                                 <div>
-                                    <label for="persentase_sla_tahunan" class="block font-medium text-sm text-gray-700">
-                                        Persentase SLA Tahunan (%)
+                                    <label class="block font-medium text-sm text-gray-700 mb-1">
+                                        Status SLA (Otomatis)
                                     </label>
-                                    <input id="persentase_sla_tahunan" type="number" step="0.01" name="persentase_sla_tahunan"
-                                        value="{{ old('persentase_sla_tahunan', $logbook->persentase_sla_tahunan) }}"
-                                        class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full"
-                                        placeholder="0.00">
+                                    <div class="bg-gray-100 border border-gray-300 rounded-md px-4 py-3">
+                                        @if($logbook->status_sla)
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $logbook->sla_status_color }}">
+                                                {{ $logbook->status_sla }}
+                                            </span>
+                                        @else
+                                            <span class="text-sm text-gray-500">Akan dihitung otomatis</span>
+                                        @endif
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Berdasarkan SLA Tahunan vs Target</p>
                                 </div>
                             </div>
 
                             <div>
                                 <label for="keterangan_sla" class="block font-medium text-sm text-gray-700">
-                                    Keterangan SLA
+                                    Keterangan SLA (Opsional)
                                 </label>
                                 <textarea id="keterangan_sla" name="keterangan_sla" rows="2"
                                     class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full"
-                                    placeholder="Detail tambahan tentang SLA...">{{ old('keterangan_sla', $logbook->keterangan_sla) }}</textarea>
+                                    placeholder="Catatan tambahan tentang SLA...">{{ old('keterangan_sla', $logbook->keterangan_sla) }}</textarea>
                             </div>
                         </div>
 
@@ -256,6 +311,43 @@
                             </div>
                         </div>
 
+                        <!-- Preview Perubahan SLA -->
+                        <div class="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg p-6 mb-6">
+                            <h3 class="text-lg font-semibold text-purple-900 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Preview Data Saat Ini
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div class="bg-white rounded-lg p-4 shadow-sm">
+                                    <p class="text-xs font-medium text-gray-600 mb-1">SLA Per Kejadian</p>
+                                    <p class="text-xl font-bold text-blue-600">{{ number_format($logbook->sla ?? 0, 4) }}%</p>
+                                    <p class="text-xs text-gray-500 mt-1">Auto-calculated</p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 shadow-sm">
+                                    <p class="text-xs font-medium text-gray-600 mb-1">SLA Tahunan</p>
+                                    <p class="text-xl font-bold text-purple-600">{{ number_format($slaTahunan, 2) }}%</p>
+                                    <p class="text-xs text-gray-500 mt-1">Akumulasi</p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 shadow-sm">
+                                    <p class="text-xs font-medium text-gray-600 mb-1">Target SLA</p>
+                                    <p class="text-xl font-bold text-orange-600">{{ number_format($logbook->target_sla ?? 98, 2) }}%</p>
+                                    <p class="text-xs text-gray-500 mt-1">User input</p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 shadow-sm">
+                                    <p class="text-xs font-medium text-gray-600 mb-1">Status</p>
+                                    <p class="text-lg font-bold {{ $logbook->status_sla === 'TERCAPAI' ? 'text-green-600' : 'text-red-600' }}">
+                                        {{ $logbook->status_sla ?? 'N/A' }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">Auto-calculated</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-purple-700 mt-4 text-center">
+                                ⚠️ Setelah update, sistem akan menghitung ulang semua nilai SLA secara otomatis
+                            </p>
+                        </div>
+
                         <!-- Buttons -->
                         <div class="flex items-center justify-end space-x-3">
                             <a href="{{ route('logbook.index') }}"
@@ -265,7 +357,8 @@
                             <button type="submit"
                                 class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                                 Update Data
                             </button>

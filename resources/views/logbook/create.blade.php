@@ -1,15 +1,26 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center">
-            <a href="{{ route('logbook.index') }}" class="mr-4 text-gray-600 hover:text-gray-900">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-            </a>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Tambah Insiden Baru
-            </h2>
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <a href="{{ route('logbook.index') }}" class="mr-4 text-gray-600 hover:text-gray-900">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </a>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    Tambah Insiden Baru
+                </h2>
+            </div>
+
+            <!-- Info SLA Tahunan -->
+            <div class="bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium text-blue-700">SLA Tahunan Saat Ini:</span>
+                    <span class="text-lg font-bold text-blue-900">{{ number_format($slaTahunan, 2) }}%</span>
+                    <span class="text-xs text-blue-600">(Target: {{ $targetSla }}%)</span>
+                </div>
+            </div>
         </div>
     </x-slot>
 
@@ -45,19 +56,11 @@
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full @error('metode_pelaporan') border-red-500 @enderror"
                                         required>
                                         <option value="">-- Pilih Metode --</option>
-                                        <option value="Email"
-                                            {{ old('metode_pelaporan') == 'Email' ? 'selected' : '' }}>Email</option>
-                                        <option value="Telepon"
-                                            {{ old('metode_pelaporan') == 'Telepon' ? 'selected' : '' }}>Telepon
-                                        </option>
-                                        <option value="WhatsApp"
-                                            {{ old('metode_pelaporan') == 'WhatsApp' ? 'selected' : '' }}>WhatsApp
-                                        </option>
-                                        <option value="Langsung"
-                                            {{ old('metode_pelaporan') == 'Langsung' ? 'selected' : '' }}>Langsung
-                                        </option>
-                                        <option value="Sistem"
-                                            {{ old('metode_pelaporan') == 'Sistem' ? 'selected' : '' }}>Sistem</option>
+                                        <option value="Email" {{ old('metode_pelaporan') == 'Email' ? 'selected' : '' }}>Email</option>
+                                        <option value="Telepon" {{ old('metode_pelaporan') == 'Telepon' ? 'selected' : '' }}>Telepon</option>
+                                        <option value="WhatsApp" {{ old('metode_pelaporan') == 'WhatsApp' ? 'selected' : '' }}>WhatsApp</option>
+                                        <option value="Langsung" {{ old('metode_pelaporan') == 'Langsung' ? 'selected' : '' }}>Langsung</option>
+                                        <option value="Sistem" {{ old('metode_pelaporan') == 'Sistem' ? 'selected' : '' }}>Sistem</option>
                                     </select>
                                     @error('metode_pelaporan')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -115,49 +118,57 @@
                                             clip-rule="evenodd" />
                                     </svg>
                                     <div class="ml-3">
-                                        <p class="text-sm text-green-700">Downtime akan dihitung otomatis dari waktu
-                                            mulai dan selesai</p>
+                                        <p class="text-sm text-green-700 font-medium">Downtime dan SLA akan dihitung otomatis</p>
+                                        <p class="text-xs text-green-600 mt-1">Sistem akan menghitung: Downtime (menit & jam), SLA Biasa, dan kontribusi ke SLA Tahunan</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- SLA -->
+                        <!-- SLA Configuration -->
                         <div class="border-b border-gray-200 pb-4 mb-6">
-                            <h3 class="text-lg font-semibold text-green-700 mb-4">Service Level Agreement (SLA)</h3>
+                            <h3 class="text-lg font-semibold text-green-700 mb-4">Konfigurasi SLA</h3>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                <h4 class="font-semibold text-blue-900 mb-3">📋 Informasi SLA (Auto-Calculate)</h4>
+                                <div class="space-y-2 text-sm text-blue-800">
+                                    <p>✓ <strong>SLA Per Kejadian</strong> = Dihitung otomatis dari downtime (rumus Excel)</p>
+                                    <p>✓ <strong>SLA Tahunan</strong> = Akumulasi dari semua SLA per kejadian</p>
+                                    <p>✓ <strong>Status SLA</strong> = Otomatis berdasarkan Target SLA yang Anda input</p>
+                                    <p class="text-xs text-blue-600 mt-2 font-medium">⚠️ User HANYA menginput: Downtime dan Target SLA</p>
+                                </div>
+                            </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label for="sla" class="block font-medium text-sm text-gray-700">
-                                        SLA (%)
+                                    <label for="target_sla" class="block font-medium text-sm text-gray-700">
+                                        Target SLA (%) <span class="text-red-500">*</span>
                                     </label>
-                                    <input id="sla" type="number" step="0.01" name="sla"
-                                        value="{{ old('sla') }}"
+                                    <input id="target_sla" type="number" step="0.01" name="target_sla"
+                                        value="{{ old('target_sla', 98.00) }}"
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full"
-                                        placeholder="Contoh: 98" required>
+                                        placeholder="98.00" required>
+                                    <p class="text-xs text-gray-500 mt-1">Target SLA sebagai pembanding (standar: 98%)</p>
                                 </div>
-
 
                                 <div>
-                                    <label for="persentase_sla_tahunan" class="block font-medium text-sm text-gray-700">
-                                        Persentase SLA Tahunan (%)
+                                    <label class="block font-medium text-sm text-gray-700 mb-1">
+                                        Status SLA (Otomatis)
                                     </label>
-                                    <input id="persentase_sla_tahunan" type="number" step="0.01"
-                                        name="persentase_sla_tahunan" value="{{ old('persentase_sla_tahunan') }}"
-                                        class="bg-gray-100 cursor-not-allowed border-gray-300 rounded-md shadow-sm mt-1 block w-full"
-                                        placeholder="Dihitung otomatis" readonly>
+                                    <div class="bg-gray-100 border border-gray-300 rounded-md px-4 py-3 text-sm text-gray-500">
+                                        Akan dihitung otomatis oleh sistem
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Berdasarkan perbandingan SLA Tahunan dengan Target</p>
                                 </div>
-
-
                             </div>
 
                             <div>
                                 <label for="keterangan_sla" class="block font-medium text-sm text-gray-700">
-                                    Keterangan SLA
+                                    Keterangan SLA (Opsional)
                                 </label>
                                 <textarea id="keterangan_sla" name="keterangan_sla" rows="2"
                                     class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full"
-                                    placeholder="Detail tambahan tentang SLA...">{{ old('keterangan_sla') }}</textarea>
+                                    placeholder="Catatan tambahan tentang SLA...">{{ old('keterangan_sla') }}</textarea>
                             </div>
                         </div>
 
@@ -263,13 +274,9 @@
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full @error('status_insiden') border-red-500 @enderror"
                                         required>
                                         <option value="">-- Pilih Status --</option>
-                                        <option value="Open"
-                                            {{ old('status_insiden') == 'Open' ? 'selected' : '' }}>Open</option>
-                                        <option value="On Progress"
-                                            {{ old('status_insiden') == 'On Progress' ? 'selected' : '' }}>On Progress
-                                        </option>
-                                        <option value="Closed"
-                                            {{ old('status_insiden') == 'Closed' ? 'selected' : '' }}>Closed</option>
+                                        <option value="Open" {{ old('status_insiden') == 'Open' ? 'selected' : '' }}>Open</option>
+                                        <option value="On Progress" {{ old('status_insiden') == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                                        <option value="Closed" {{ old('status_insiden') == 'Closed' ? 'selected' : '' }}>Closed</option>
                                     </select>
                                     @error('status_insiden')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
