@@ -21,6 +21,7 @@ class LogbookInsiden extends Model
         'downtime_menit',
         'konversi_ke_jam',
         'sla',
+        'status_sla',
         'persentase_sla_tahunan',
         'keterangan_sla',
         'aplikasi',

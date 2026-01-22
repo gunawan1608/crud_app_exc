@@ -39,8 +39,7 @@ class LogbookInsidenController extends Controller
             'waktu_mulai' => 'required|date',
             'waktu_selesai' => 'required|date|after:waktu_mulai',
             'keterangan_waktu_selesai' => 'nullable|string',
-            'sla' => 'nullable|string|max:50',
-            'persentase_sla_tahunan' => 'nullable|numeric|min:0|max:100',
+            'sla' => 'nullable|numeric|min:0|max:100', // SLA target (%)
             'keterangan_sla' => 'nullable|string',
             'aplikasi' => 'nullable|string|max:100',
             'ip_server' => 'nullable|ip',
@@ -50,24 +49,38 @@ class LogbookInsidenController extends Controller
             'tindak_lanjut_detail' => 'nullable|string',
             'direspon_oleh' => 'required|string',
             'status_insiden' => 'required|in:Open,On Progress,Closed',
-        ], [
-            'pelapor.required' => 'Nama pelapor wajib diisi',
-            'metode_pelaporan.required' => 'Metode pelaporan wajib dipilih',
-            'waktu_mulai.required' => 'Waktu mulai wajib diisi',
-            'waktu_selesai.required' => 'Waktu selesai wajib diisi',
-            'waktu_selesai.after' => 'Waktu selesai harus setelah waktu mulai',
-            'direspon_oleh.required' => 'Penanggung jawab wajib diisi',
-            'keterangan.required' => 'Keterangan insiden wajib diisi',
-            'status_insiden.required' => 'Status insiden wajib dipilih',
-            'ip_server.ip' => 'Format IP Server tidak valid',
         ]);
 
-        // Hitung downtime otomatis
-        $waktuMulai = Carbon::parse($validated['waktu_mulai']);
+        // =========================
+        // HITUNG DOWNTIME
+        // =========================
+        $waktuMulai   = Carbon::parse($validated['waktu_mulai']);
         $waktuSelesai = Carbon::parse($validated['waktu_selesai']);
-        $lamaDowntime = $waktuMulai->diffInMinutes($waktuSelesai);
-        $konversiJam = round($lamaDowntime / 60, 2);
 
+        $lamaDowntime = $waktuMulai->diffInMinutes($waktuSelesai);
+        $konversiJam  = round($lamaDowntime / 60, 2);
+
+        // =========================
+        // HITUNG SLA TAHUNAN (AUTO)
+        // =========================
+        $totalMenitTahunan = 525600; // 365 hari
+        $persentaseSlaTahunan = round(
+            (($totalMenitTahunan - $lamaDowntime) / $totalMenitTahunan) * 100,
+            2
+        );
+
+        // =========================
+        // LOGIC IF ALA EXCEL
+        // =========================
+        $slaTarget = $validated['sla']; // misal 98
+
+        $statusSla = $persentaseSlaTahunan >= $slaTarget
+            ? 'SLA Tercapai'
+            : 'SLA Tidak Tercapai';
+
+        // =========================
+        // SIMPAN DATA
+        // =========================
         LogbookInsiden::create([
             'pelapor' => $validated['pelapor'],
             'metode_pelaporan' => $validated['metode_pelaporan'],
@@ -76,8 +89,11 @@ class LogbookInsidenController extends Controller
             'keterangan_waktu_selesai' => $validated['keterangan_waktu_selesai'],
             'downtime_menit' => $lamaDowntime,
             'konversi_ke_jam' => $konversiJam,
-            'sla' => $validated['sla'],
-            'persentase_sla_tahunan' => $validated['persentase_sla_tahunan'],
+
+            'sla' => $slaTarget,
+            'persentase_sla_tahunan' => $persentaseSlaTahunan,
+            'status_sla' => $statusSla,
+
             'keterangan_sla' => $validated['keterangan_sla'],
             'aplikasi' => $validated['aplikasi'],
             'ip_server' => $validated['ip_server'],
@@ -92,6 +108,7 @@ class LogbookInsidenController extends Controller
         return redirect()->route('logbook.index')
             ->with('success', 'Data insiden berhasil ditambahkan');
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -112,8 +129,7 @@ class LogbookInsidenController extends Controller
             'waktu_mulai' => 'required|date',
             'waktu_selesai' => 'required|date|after:waktu_mulai',
             'keterangan_waktu_selesai' => 'nullable|string',
-            'sla' => 'nullable|string|max:50',
-            'persentase_sla_tahunan' => 'nullable|numeric|min:0|max:100',
+            'sla' => 'nullable|numeric|min:0|max:100',
             'keterangan_sla' => 'nullable|string',
             'aplikasi' => 'nullable|string|max:100',
             'ip_server' => 'nullable|ip',
@@ -125,12 +141,38 @@ class LogbookInsidenController extends Controller
             'status_insiden' => 'required|in:Open,On Progress,Closed',
         ]);
 
-        // Hitung ulang downtime
-        $waktuMulai = Carbon::parse($validated['waktu_mulai']);
+        // =========================
+        // HITUNG DOWNTIME
+        // =========================
+        $waktuMulai   = Carbon::parse($validated['waktu_mulai']);
         $waktuSelesai = Carbon::parse($validated['waktu_selesai']);
-        $lamaDowntime = $waktuMulai->diffInMinutes($waktuSelesai);
-        $konversiJam = round($lamaDowntime / 60, 2);
 
+        $lamaDowntime = $waktuMulai->diffInMinutes($waktuSelesai);
+        $konversiJam  = round($lamaDowntime / 60, 2);
+
+        // =========================
+        // HITUNG SLA TAHUNAN
+        // =========================
+        $totalMenitTahunan = 525600;
+        $persentaseSlaTahunan = round(
+            (($totalMenitTahunan - $lamaDowntime) / $totalMenitTahunan) * 100,
+            2
+        );
+
+        // =========================
+        // LOGIKA STATUS SLA
+        // =========================
+        $slaTarget = $validated['sla'];
+
+        $statusSla = $slaTarget !== null
+            ? ($persentaseSlaTahunan >= $slaTarget
+                ? 'SLA Tercapai'
+                : 'SLA Tidak Tercapai')
+            : null;
+
+        // =========================
+        // UPDATE DATA
+        // =========================
         $logbook->update([
             'pelapor' => $validated['pelapor'],
             'metode_pelaporan' => $validated['metode_pelaporan'],
@@ -139,8 +181,11 @@ class LogbookInsidenController extends Controller
             'keterangan_waktu_selesai' => $validated['keterangan_waktu_selesai'],
             'downtime_menit' => $lamaDowntime,
             'konversi_ke_jam' => $konversiJam,
-            'sla' => $validated['sla'],
-            'persentase_sla_tahunan' => $validated['persentase_sla_tahunan'],
+
+            'sla' => $slaTarget,
+            'persentase_sla_tahunan' => $persentaseSlaTahunan,
+            'status_sla' => $statusSla,
+
             'keterangan_sla' => $validated['keterangan_sla'],
             'aplikasi' => $validated['aplikasi'],
             'ip_server' => $validated['ip_server'],
@@ -155,7 +200,6 @@ class LogbookInsidenController extends Controller
         return redirect()->route('logbook.index')
             ->with('success', 'Data insiden berhasil diperbarui');
     }
-
     /**
      * Remove the specified resource from storage.
      */

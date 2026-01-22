@@ -3,7 +3,8 @@
         <div class="flex items-center">
             <a href="{{ route('logbook.index') }}" class="mr-4 text-gray-600 hover:text-gray-900">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
             </a>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -44,11 +45,19 @@
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full @error('metode_pelaporan') border-red-500 @enderror"
                                         required>
                                         <option value="">-- Pilih Metode --</option>
-                                        <option value="Email" {{ old('metode_pelaporan') == 'Email' ? 'selected' : '' }}>Email</option>
-                                        <option value="Telepon" {{ old('metode_pelaporan') == 'Telepon' ? 'selected' : '' }}>Telepon</option>
-                                        <option value="WhatsApp" {{ old('metode_pelaporan') == 'WhatsApp' ? 'selected' : '' }}>WhatsApp</option>
-                                        <option value="Langsung" {{ old('metode_pelaporan') == 'Langsung' ? 'selected' : '' }}>Langsung</option>
-                                        <option value="Sistem" {{ old('metode_pelaporan') == 'Sistem' ? 'selected' : '' }}>Sistem</option>
+                                        <option value="Email"
+                                            {{ old('metode_pelaporan') == 'Email' ? 'selected' : '' }}>Email</option>
+                                        <option value="Telepon"
+                                            {{ old('metode_pelaporan') == 'Telepon' ? 'selected' : '' }}>Telepon
+                                        </option>
+                                        <option value="WhatsApp"
+                                            {{ old('metode_pelaporan') == 'WhatsApp' ? 'selected' : '' }}>WhatsApp
+                                        </option>
+                                        <option value="Langsung"
+                                            {{ old('metode_pelaporan') == 'Langsung' ? 'selected' : '' }}>Langsung
+                                        </option>
+                                        <option value="Sistem"
+                                            {{ old('metode_pelaporan') == 'Sistem' ? 'selected' : '' }}>Sistem</option>
                                     </select>
                                     @error('metode_pelaporan')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -66,7 +75,8 @@
                                     <label for="waktu_mulai" class="block font-medium text-sm text-gray-700">
                                         Waktu Mulai <span class="text-red-500">*</span>
                                     </label>
-                                    <input id="waktu_mulai" type="datetime-local" name="waktu_mulai" value="{{ old('waktu_mulai') }}"
+                                    <input id="waktu_mulai" type="datetime-local" name="waktu_mulai"
+                                        value="{{ old('waktu_mulai') }}"
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full @error('waktu_mulai') border-red-500 @enderror"
                                         required>
                                     @error('waktu_mulai')
@@ -78,7 +88,8 @@
                                     <label for="waktu_selesai" class="block font-medium text-sm text-gray-700">
                                         Waktu Selesai <span class="text-red-500">*</span>
                                     </label>
-                                    <input id="waktu_selesai" type="datetime-local" name="waktu_selesai" value="{{ old('waktu_selesai') }}"
+                                    <input id="waktu_selesai" type="datetime-local" name="waktu_selesai"
+                                        value="{{ old('waktu_selesai') }}"
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full @error('waktu_selesai') border-red-500 @enderror"
                                         required>
                                     @error('waktu_selesai')
@@ -99,10 +110,13 @@
                             <div class="bg-green-50 border-l-4 border-green-500 p-4">
                                 <div class="flex">
                                     <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        <path fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                            clip-rule="evenodd" />
                                     </svg>
                                     <div class="ml-3">
-                                        <p class="text-sm text-green-700">Downtime akan dihitung otomatis dari waktu mulai dan selesai</p>
+                                        <p class="text-sm text-green-700">Downtime akan dihitung otomatis dari waktu
+                                            mulai dan selesai</p>
                                     </div>
                                 </div>
                             </div>
@@ -114,20 +128,27 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label for="sla" class="block font-medium text-sm text-gray-700">SLA</label>
-                                    <input id="sla" type="text" name="sla" value="{{ old('sla') }}"
+                                    <label for="sla" class="block font-medium text-sm text-gray-700">
+                                        SLA (%)
+                                    </label>
+                                    <input id="sla" type="number" step="0.01" name="sla"
+                                        value="{{ old('sla') }}"
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full"
-                                        placeholder="Contoh: 99.9%">
+                                        placeholder="Contoh: 98" required>
                                 </div>
+
 
                                 <div>
                                     <label for="persentase_sla_tahunan" class="block font-medium text-sm text-gray-700">
                                         Persentase SLA Tahunan (%)
                                     </label>
-                                    <input id="persentase_sla_tahunan" type="number" step="0.01" name="persentase_sla_tahunan" value="{{ old('persentase_sla_tahunan') }}"
-                                        class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full"
-                                        placeholder="0.00">
+                                    <input id="persentase_sla_tahunan" type="number" step="0.01"
+                                        name="persentase_sla_tahunan" value="{{ old('persentase_sla_tahunan') }}"
+                                        class="bg-gray-100 cursor-not-allowed border-gray-300 rounded-md shadow-sm mt-1 block w-full"
+                                        placeholder="Dihitung otomatis" readonly>
                                 </div>
+
+
                             </div>
 
                             <div>
@@ -149,7 +170,8 @@
                                     <label for="aplikasi" class="block font-medium text-sm text-gray-700">
                                         Aplikasi
                                     </label>
-                                    <input id="aplikasi" type="text" name="aplikasi" value="{{ old('aplikasi') }}"
+                                    <input id="aplikasi" type="text" name="aplikasi"
+                                        value="{{ old('aplikasi') }}"
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full"
                                         placeholder="Nama aplikasi yang terdampak">
                                 </div>
@@ -158,7 +180,8 @@
                                     <label for="ip_server" class="block font-medium text-sm text-gray-700">
                                         IP Server
                                     </label>
-                                    <input id="ip_server" type="text" name="ip_server" value="{{ old('ip_server') }}"
+                                    <input id="ip_server" type="text" name="ip_server"
+                                        value="{{ old('ip_server') }}"
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full"
                                         placeholder="192.168.1.1">
                                     @error('ip_server')
@@ -171,7 +194,8 @@
                                 <label for="tipe_insiden" class="block font-medium text-sm text-gray-700">
                                     Tipe Insiden
                                 </label>
-                                <input id="tipe_insiden" type="text" name="tipe_insiden" value="{{ old('tipe_insiden') }}"
+                                <input id="tipe_insiden" type="text" name="tipe_insiden"
+                                    value="{{ old('tipe_insiden') }}"
                                     class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full"
                                     placeholder="Contoh: Hardware, Software, Network">
                             </div>
@@ -187,8 +211,7 @@
                                 </label>
                                 <textarea id="keterangan" name="keterangan" rows="4"
                                     class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full @error('keterangan') border-red-500 @enderror"
-                                    placeholder="Jelaskan detail insiden yang terjadi..."
-                                    required>{{ old('keterangan') }}</textarea>
+                                    placeholder="Jelaskan detail insiden yang terjadi..." required>{{ old('keterangan') }}</textarea>
                                 @error('keterangan')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
@@ -222,10 +245,10 @@
                                     <label for="direspon_oleh" class="block font-medium text-sm text-gray-700">
                                         Direspon Oleh <span class="text-red-500">*</span>
                                     </label>
-                                    <input id="direspon_oleh" type="text" name="direspon_oleh" value="{{ old('direspon_oleh') }}"
+                                    <input id="direspon_oleh" type="text" name="direspon_oleh"
+                                        value="{{ old('direspon_oleh') }}"
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full @error('direspon_oleh') border-red-500 @enderror"
-                                        placeholder="Tim IT, Ahmad, Budi"
-                                        required>
+                                        placeholder="Tim IT, Ahmad, Budi" required>
                                     <p class="text-gray-500 text-xs mt-1">Pisahkan dengan koma jika lebih dari satu</p>
                                     @error('direspon_oleh')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -240,9 +263,13 @@
                                         class="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 block w-full @error('status_insiden') border-red-500 @enderror"
                                         required>
                                         <option value="">-- Pilih Status --</option>
-                                        <option value="Open" {{ old('status_insiden') == 'Open' ? 'selected' : '' }}>Open</option>
-                                        <option value="On Progress" {{ old('status_insiden') == 'On Progress' ? 'selected' : '' }}>On Progress</option>
-                                        <option value="Closed" {{ old('status_insiden') == 'Closed' ? 'selected' : '' }}>Closed</option>
+                                        <option value="Open"
+                                            {{ old('status_insiden') == 'Open' ? 'selected' : '' }}>Open</option>
+                                        <option value="On Progress"
+                                            {{ old('status_insiden') == 'On Progress' ? 'selected' : '' }}>On Progress
+                                        </option>
+                                        <option value="Closed"
+                                            {{ old('status_insiden') == 'Closed' ? 'selected' : '' }}>Closed</option>
                                     </select>
                                     @error('status_insiden')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -260,7 +287,8 @@
                             <button type="submit"
                                 class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                                 Simpan Data
                             </button>
