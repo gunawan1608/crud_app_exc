@@ -102,16 +102,6 @@ class LogbookInsiden extends Model
     /**
      * Tentukan status SLA berdasarkan target
      */
-    public static function tentukanStatusSla(?float $targetSla = null): string
-    {
-        if ($targetSla === null) {
-            $targetSla = self::min('target_sla') ?? 98.00;
-        }
-
-        $slaTahunan = self::hitungSlaTahunan();
-
-        return $slaTahunan >= $targetSla ? 'TERCAPAI' : 'TIDAK TERCAPAI';
-    }
 
     /**
      * Format downtime ke jam dan menit
@@ -151,4 +141,12 @@ class LogbookInsiden extends Model
             default => 'bg-gray-100 text-gray-800',
         };
     }
+
+    public static function tentukanStatusSla($slaTahunan, $targetSla)
+{
+    return $slaTahunan >= $targetSla
+        ? 'SLA Tercapai'
+        : 'SLA dTidak Tercapai';
+}
+
 }

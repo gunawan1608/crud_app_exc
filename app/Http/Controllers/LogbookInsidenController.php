@@ -18,16 +18,24 @@ class LogbookInsidenController extends Controller
     {
         $logbooks = LogbookInsiden::latest()->paginate(10);
 
-        // Hitung SLA tahunan untuk ditampilkan
+        // Hitung SLA tahunan
         $slaTahunan = LogbookInsiden::hitungSlaTahunan();
 
-        // Ambil target SLA terendah sebagai referensi atau gunakan default
+        // Ambil target SLA terendah atau default
         $targetSla = LogbookInsiden::min('target_sla') ?? 98.00;
 
-        // Tentukan status SLA berdasarkan target
-        $statusSla = LogbookInsiden::tentukanStatusSla($targetSla);
+        // ✅ FIX: kirim 2 parameter
+        $statusSla = LogbookInsiden::tentukanStatusSla(
+            $slaTahunan,
+            $targetSla
+        );
 
-        return view('logbook.index', compact('logbooks', 'slaTahunan', 'targetSla', 'statusSla'));
+        return view('logbook.index', compact(
+            'logbooks',
+            'slaTahunan',
+            'targetSla',
+            'statusSla'
+        ));
     }
 
     /**
@@ -117,8 +125,13 @@ class LogbookInsidenController extends Controller
         // HITUNG STATUS SLA (OTOMATIS)
         // Bandingkan SLA Tahunan dengan Target SLA
         // =========================
-        $statusSla = LogbookInsiden::tentukanStatusSla($validated['target_sla']);
+        $statusSla = LogbookInsiden::tentukanStatusSla(
+            $kontribusiSlaTahunan,
+            $validated['target_sla']
+        );
+
         $logbook->update(['status_sla' => $statusSla]);
+
 
         return redirect()->route('logbook.index')
             ->with('success', 'Data insiden berhasil ditambahkan');
@@ -210,8 +223,13 @@ class LogbookInsidenController extends Controller
         // HITUNG STATUS SLA (OTOMATIS)
         // Bandingkan SLA Tahunan dengan Target SLA
         // =========================
-        $statusSla = LogbookInsiden::tentukanStatusSla($validated['target_sla']);
+        $statusSla = LogbookInsiden::tentukanStatusSla(
+            $kontribusiSlaTahunan,
+            $validated['target_sla']
+        );
+
         $logbook->update(['status_sla' => $statusSla]);
+
 
         return redirect()->route('logbook.index')
             ->with('success', 'Data insiden berhasil diperbarui');
@@ -226,7 +244,12 @@ class LogbookInsidenController extends Controller
 
         // Recalculate status SLA setelah delete
         $targetSla = 98;
-        $statusSla = LogbookInsiden::tentukanStatusSla($targetSla);
+        $slaTahunan = LogbookInsiden::hitungSlaTahunan();
+
+        $statusSla = LogbookInsiden::tentukanStatusSla(
+            $slaTahunan,
+            $targetSla
+        );
 
         return redirect()->route('logbook.index')
             ->with('success', 'Data insiden berhasil dihapus');
@@ -294,7 +317,15 @@ class LogbookInsidenController extends Controller
 
         // Update status SLA untuk semua data berdasarkan target minimum
         $targetSla = LogbookInsiden::min('target_sla') ?? 98.00;
-        $statusSla = LogbookInsiden::tentukanStatusSla($targetSla);
-        LogbookInsiden::query()->update(['status_sla' => $statusSla]);
+        $slaTahunan = LogbookInsiden::hitungSlaTahunan();
+
+        $statusSla = LogbookInsiden::tentukanStatusSla(
+            $slaTahunan,
+            $targetSla
+        );
+
+        LogbookInsiden::query()->update([
+            'status_sla' => $statusSla
+        ]);
     }
 }

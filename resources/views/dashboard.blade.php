@@ -1,94 +1,136 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-semibold text-gray-800">
+                Dashboard
+            </h2>
+            <span class="text-sm text-gray-500">
+                {{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
+            </span>
+        </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <!-- Total Insiden -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-primary-100 text-primary-600">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600">Total Insiden</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\LogbookInsiden::count() }}</p>
-                            </div>
+            
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                
+                <!-- Card 1: Total Insiden -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">
+                                Total Insiden
+                            </p>
+                            <p class="text-3xl font-semibold text-gray-900 mb-1">
+                                {{ \App\Models\LogbookInsiden::count() }}
+                            </p>
+                            <p class="text-xs text-gray-400">Keseluruhan data</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Bulan Ini -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600">Bulan Ini</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\LogbookInsiden::whereMonth('created_at', now()->month)->count() }}</p>
-                            </div>
+                <!-- Card 2: Bulan Ini -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">
+                                Bulan Ini
+                            </p>
+                            <p class="text-3xl font-semibold text-gray-900 mb-1">
+                                {{ \App\Models\LogbookInsiden::whereMonth('created_at', now()->month)->count() }}
+                            </p>
+                            <p class="text-xs text-gray-400">{{ now()->locale('id')->isoFormat('MMMM YYYY') }}</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Total Downtime -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-red-100 text-red-600">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600">Total Downtime</p>
-                                <p class="text-2xl font-bold text-gray-900">
-                                    @php
-                                        $totalMenit = \App\Models\LogbookInsiden::sum('downtime_menit');
-                                        $jam = floor($totalMenit / 60);
-                                    @endphp
-                                    {{ $jam }} Jam
-                                </p>
-                            </div>
+                <!-- Card 3: Total Downtime -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">
+                                Total Downtime
+                            </p>
+                            @php
+                                $totalMenit = \App\Models\LogbookInsiden::sum('downtime_menit');
+                                $jam = floor($totalMenit / 60);
+                                $menit = $totalMenit % 60;
+                            @endphp
+                            <p class="text-3xl font-semibold text-gray-900 mb-1">
+                                {{ $jam }}<span class="text-xl text-gray-500">j</span> {{ $menit }}<span class="text-xl text-gray-500">m</span>
+                            </p>
+                            <p class="text-xs text-gray-400">Akumulasi waktu</p>
                         </div>
                     </div>
                 </div>
+
             </div>
 
-            <!-- Welcome Card -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="text-center py-8">
-                        <svg class="mx-auto h-16 w-16 text-primary-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Selamat Datang di Logbook Insiden</h3>
-                        <p class="text-gray-600 mb-6">Kelola dan pantau semua insiden dengan mudah</p>
-                        <div class="flex justify-center space-x-4">
-                           <a href="{{ route('logbook.index') }}"
-                            class="inline-flex items-center px-4 py-2 bg-green-600 rounded-md font-semibold text-sm text-white hover:bg-primary-700 transition">
+            <!-- Main Content Area -->
+            <div class="bg-white border border-gray-200 rounded-lg">
+                
+                <!-- Header Section -->
+                <div class="border-b border-gray-200 px-8 py-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                        Sistem Manajemen Logbook Insiden
+                    </h3>
+                    <p class="text-sm text-gray-500">
+                        Platform terpusat untuk dokumentasi dan monitoring insiden aplikasi
+                    </p>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="px-8 py-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Action Card 1 -->
+                        <a href="{{ route('logbook.index') }}" 
+                           class="group block p-6 border border-gray-200 rounded-lg hover:border-green-300 hover:shadow-sm transition-all duration-200">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                                    <span class="text-gray-600 font-semibold">≡</span>
+                                </div>
+                                <span class="text-gray-400 group-hover:text-green-600 transition-colors">→</span>
+                            </div>
+                            <h4 class="text-base font-semibold text-gray-900 mb-2">
                                 Lihat Data Insiden
-                            </a>
+                            </h4>
+                            <p class="text-sm text-gray-500 leading-relaxed">
+                                Akses daftar lengkap insiden yang telah terdokumentasi dengan filter dan pencarian lanjutan
+                            </p>
+                        </a>
 
-                            <a href="{{ route('logbook.create') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                Tambah Insiden
-                            </a>
-                        </div>
+                        <!-- Action Card 2 -->
+                        <a href="{{ route('logbook.create') }}" 
+                           class="group block p-6 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all duration-200 bg-gradient-to-br from-white to-blue-50/30">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                                    <span class="text-blue-600 font-semibold text-lg">+</span>
+                                </div>
+                                <span class="text-blue-400 group-hover:text-blue-600 transition-colors">→</span>
+                            </div>
+                            <h4 class="text-base font-semibold text-gray-900 mb-2">
+                                Tambah Insiden Baru
+                            </h4>
+                            <p class="text-sm text-gray-500 leading-relaxed">
+                                Dokumentasikan insiden baru dengan formulir terstruktur untuk tracking yang lebih efektif
+                            </p>
+                        </a>
+
                     </div>
                 </div>
+
+                <!-- Footer Info -->
+                <div class="border-t border-gray-200 px-8 py-4 bg-gray-50/50">
+                    <p class="text-xs text-gray-500 text-center">
+                        Sistem ini dirancang untuk meningkatkan transparansi dan responsivitas dalam penanganan insiden aplikasi
+                    </p>
+                </div>
+
             </div>
+
         </div>
     </div>
 </x-app-layout>
