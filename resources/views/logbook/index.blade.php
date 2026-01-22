@@ -5,7 +5,6 @@
                 Data Insiden
             </h2>
             <div class="flex space-x-3">
-                <!-- Tombol Export -->
                 <a href="{{ route('logbook.export') }}"
                     class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition ease-in-out duration-150">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -15,7 +14,6 @@
                     Export Excel
                 </a>
 
-                <!-- Tombol Import -->
                 <button onclick="document.getElementById('importModal').classList.remove('hidden')"
                     class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ease-in-out duration-150">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,9 +23,8 @@
                     Import Excel
                 </button>
 
-                <!-- Tombol Tambah -->
                 <a href="{{ route('logbook.create') }}"
-                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition ease-in-out duration-150">
+                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ease-in-out duration-150">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -99,7 +96,6 @@
                 </div>
             </div>
 
-            <!-- Alert Success -->
             @if (session('success'))
                 <div class="mb-4 bg-green-50 border-l-4 border-green-500 p-4">
                     <div class="flex">
@@ -113,7 +109,6 @@
                 </div>
             @endif
 
-            <!-- Alert Error -->
             @if (session('error'))
                 <div class="mb-4 bg-red-50 border-l-4 border-red-500 p-4">
                     <div class="flex">
@@ -133,72 +128,88 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-green-50">
                             <tr>
-                                <th class="px-3 py-3 text-left text-xs font-bold text-green-800 uppercase w-12">No</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[140px]">
-                                    Pelapor</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[120px]">
-                                    Aplikasi</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[130px]">
-                                    Waktu Mulai</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[130px]">
-                                    Waktu Selesai</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[110px]">
-                                    Downtime</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[100px]">
-                                    SLA Per Kejadian (%)</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[100px]">
-                                    Target SLA (%)</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[140px]">
-                                    Status SLA</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[200px]">
-                                    Keterangan</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase min-w-[100px]">
-                                    Status</th>
-                                <th class="px-4 py-3 text-center text-xs font-bold text-green-800 uppercase w-24">Aksi</th>
+                                <th class="px-3 py-3 text-left text-xs font-bold text-green-800 uppercase">No</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Pelapor</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Metode Pelaporan</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Aplikasi</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">IP Server</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Tipe Insiden</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Waktu Mulai</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Waktu Selesai</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Keterangan Waktu Selesai</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Downtime (Menit)</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Konversi Jam</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">SLA Per Kejadian (%)</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Kontribusi SLA Tahunan (%)</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Target SLA (%)</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-green-800 uppercase">Status SLA</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Keterangan SLA</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Keterangan</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Akar Penyebab</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Tindak Lanjut</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-green-800 uppercase">Direspon Oleh</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-green-800 uppercase">Status Insiden</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-green-800 uppercase">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse ($logbooks as $index => $logbook)
                                 <tr class="hover:bg-gray-50 transition-colors duration-150">
-                                    <td class="px-3 py-4 text-sm text-gray-900 font-medium text-center">
+                                    <td class="px-3 py-4 text-sm text-gray-900 font-medium text-center whitespace-nowrap">
                                         {{ $logbooks->firstItem() + $index }}
                                     </td>
-                                    <td class="px-4 py-4">
-                                        <div class="text-sm font-semibold text-gray-900">{{ $logbook->pelapor }}</div>
-                                        <div class="text-xs text-gray-500 mt-0.5">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                                {{ $logbook->metode_pelaporan }}
-                                            </span>
-                                        </div>
+                                    <td class="px-4 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">
+                                        {{ $logbook->pelapor }}
                                     </td>
-                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                            {{ $logbook->metode_pelaporan }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap">
                                         {{ $logbook->aplikasi ?? '-' }}
                                     </td>
-                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                    <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap">
+                                        {{ $logbook->ip_server ?? '-' }}
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap">
+                                        {{ $logbook->tipe_insiden ?? '-' }}
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap">
                                         <div class="font-medium">{{ $logbook->waktu_mulai->format('d/m/Y') }}</div>
                                         <div class="text-xs text-gray-500">{{ $logbook->waktu_mulai->format('H:i') }}</div>
                                     </td>
-                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                    <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap">
                                         <div class="font-medium">{{ $logbook->waktu_selesai->format('d/m/Y') }}</div>
                                         <div class="text-xs text-gray-500">{{ $logbook->waktu_selesai->format('H:i') }}</div>
                                     </td>
-                                    <td class="px-4 py-4 text-sm">
-                                        <div class="font-bold text-green-700">{{ $logbook->getDowntimeFormatted() }}</div>
-                                        <div class="text-xs text-gray-500">{{ $logbook->konversi_ke_jam }} jam</div>
-                                    </td>
-                                    <td class="px-4 py-4 text-sm">
-                                        <div class="font-bold text-blue-700">
-                                            {{ number_format($logbook->sla ?? 0, 4) }}%
+                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                        <div class="max-w-xs">
+                                            {{ $logbook->keterangan_waktu_selesai ?? '-' }}
                                         </div>
-                                        <div class="text-xs text-gray-500">Auto-calculated</div>
                                     </td>
-                                    <td class="px-4 py-4 text-sm">
-                                        <div class="font-bold text-orange-700">
-                                            {{ number_format($logbook->target_sla ?? 98, 2) }}%
+                                    <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap text-right">
+                                        {{ number_format($logbook->downtime_menit ?? 0) }}
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap text-right">
+                                        {{ number_format($logbook->konversi_ke_jam ?? 0, 2) }}
+                                    </td>
+                                    <td class="px-4 py-4 text-sm whitespace-nowrap">
+                                        <div class="px-3 py-1 rounded-full bg-blue-50">
+                                            <span class="font-bold text-blue-700">{{ number_format($logbook->sla ?? 0, 4) }}%</span>
                                         </div>
-                                        <div class="text-xs text-gray-500">User input</div>
                                     </td>
-                                    <td class="px-4 py-4">
+                                    <td class="px-4 py-4 text-sm whitespace-nowrap">
+                                        <div class="px-3 py-1 rounded-full bg-purple-50">
+                                            <span class="font-bold text-purple-700">{{ number_format($logbook->persentase_sla_tahunan ?? 0, 4) }}%</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm whitespace-nowrap">
+                                        <div class="px-3 py-1 rounded-full bg-orange-50">
+                                            <span class="font-bold text-orange-700">{{ number_format($logbook->target_sla ?? 98, 2) }}%</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-center whitespace-nowrap">
                                         @if ($logbook->status_sla)
                                             <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $logbook->sla_status_color }}">
                                                 {{ $logbook->status_sla }}
@@ -209,20 +220,36 @@
                                     </td>
                                     <td class="px-4 py-4 text-sm text-gray-700">
                                         <div class="max-w-xs">
-                                            <p class="line-clamp-2" title="{{ $logbook->keterangan }}">
-                                                {{ Str::limit($logbook->keterangan, 80) }}
-                                            </p>
+                                            {{ $logbook->keterangan_sla ?? '-' }}
                                         </div>
                                     </td>
-                                    <td class="px-4 py-4">
+                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                        <div class="max-w-sm">
+                                            {{ Str::limit($logbook->keterangan, 100) }}
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                        <div class="max-w-xs">
+                                            {{ $logbook->akar_penyebab ? Str::limit($logbook->akar_penyebab, 80) : '-' }}
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700">
+                                        <div class="max-w-xs">
+                                            {{ $logbook->tindak_lanjut_detail ? Str::limit($logbook->tindak_lanjut_detail, 80) : '-' }}
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap">
+                                        {{ $logbook->direspon_oleh }}
+                                    </td>
+                                    <td class="px-4 py-4 text-center whitespace-nowrap">
                                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $logbook->status_color }}">
                                             {{ $logbook->status_insiden }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-4 text-center">
+                                    <td class="px-4 py-4 text-center whitespace-nowrap">
                                         <div class="flex items-center justify-center space-x-2">
                                             <a href="{{ route('logbook.edit', $logbook) }}"
-                                                class="text-green-600 hover:text-green-900 transition-colors" title="Edit">
+                                                class="text-indigo-600 hover:text-indigo-900 transition-colors" title="Edit">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -245,7 +272,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="12" class="px-6 py-12 text-center text-gray-500">
+                                    <td colspan="22" class="px-6 py-12 text-center text-gray-500">
                                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -277,11 +304,11 @@
                     @csrf
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Pilih File Excel <span class="text-red-500">*</span>
+                            Pilih File Excel
                         </label>
                         <input type="file" name="file" accept=".xlsx,.xls,.csv" required
-                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
-                        <p class="mt-1 text-xs text-gray-500">Format: .xlsx, .xls, atau .csv (Maks 5MB)</p>
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        <p class="mt-1 text-xs text-gray-500">Format: .xlsx, .xls, atau .csv (Maksimal 5MB)</p>
                     </div>
 
                     <div class="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4">
@@ -299,7 +326,7 @@
                             Batal
                         </button>
                         <button type="submit"
-                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium">
+                            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium">
                             Upload & Import
                         </button>
                     </div>

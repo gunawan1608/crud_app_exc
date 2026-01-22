@@ -20,10 +20,10 @@ class LogbookInsiden extends Model
         'keterangan_waktu_selesai',
         'downtime_menit',
         'konversi_ke_jam',
-        'sla', // SLA per kejadian (auto-calculated)
-        'persentase_sla_tahunan', // Kontribusi ke SLA tahunan (auto-calculated)
-        'status_sla', // Status SLA (auto-calculated)
-        'target_sla', // Target SLA (user input) - SATU-SATUNYA INPUT MANUAL
+        'sla',
+        'persentase_sla_tahunan',
+        'status_sla',
+        'target_sla',
         'keterangan_sla',
         'aplikasi',
         'ip_server',
@@ -66,13 +66,12 @@ class LogbookInsiden extends Model
 
     /**
      * Hitung SLA Per Kejadian (Otomatis)
-     * Formula Excel: SLA_per_kejadian = 100 - (downtime_jam / 8760 * 100)
-     * Disimpan di kolom 'sla'
+     * Formula: SLA = 100 - (downtime_jam / 8760 * 100)
      */
     public function hitungSlaBiasa(): float
     {
         $downtimeJam = $this->konversi_ke_jam ?? 0;
-        $jamTahunan = 8760; // 365 hari × 24 jam
+        $jamTahunan = 8760;
 
         $sla = 100 - (($downtimeJam / $jamTahunan) * 100);
 
@@ -80,38 +79,31 @@ class LogbookInsiden extends Model
     }
 
     /**
-     * Hitung kontribusi untuk SLA tahunan (100 - SLA_per_kejadian)
-     * Disimpan di kolom 'persentase_sla_tahunan'
-     */
-    public function hitungKontribusiSlaTahunan(): float
-    {
-        $slaBiasa = floatval($this->sla);
-        return round(100 - $slaBiasa, 6);
-    }
-
-    /**
      * Hitung SLA Tahunan dari semua kejadian
-     * Formula Excel: SLA_tahunan = 100 - SUM(100 - SLA_per_kejadian)
-     * atau: SLA_tahunan = 100 - SUM(persentase_sla_tahunan)
+     * Formula Excel: 100% − SUMPRODUCT(100% − SLA per kejadian)
+     * atau: SLA_tahunan = 100 - SUM(100 - SLA_per_kejadian)
      */
     public static function hitungSlaTahunan(): float
     {
-        $sumKontribusi = self::sum('persentase_sla_tahunan') ?? 0;
-        $slaTahunan = 100 - $sumKontribusi;
+        // Ambil semua SLA per kejadian
+        $allSla = self::pluck('sla');
+
+        // Hitung SUMPRODUCT(100 - SLA per kejadian)
+        $sumProduct = $allSla->sum(function($sla) {
+            return 100 - floatval($sla);
+        });
+
+        // SLA Tahunan = 100 - SUMPRODUCT
+        $slaTahunan = 100 - $sumProduct;
 
         return round($slaTahunan, 2);
     }
 
     /**
-     * Tentukan status SLA berdasarkan target dari setiap kejadian
-     * Status ditentukan dengan membandingkan SLA Tahunan dengan Target SLA
-     *
-     * Karena setiap kejadian bisa punya target berbeda, kita ambil target terendah
-     * atau bisa juga menggunakan target dari parameter
+     * Tentukan status SLA berdasarkan target
      */
     public static function tentukanStatusSla(?float $targetSla = null): string
     {
-        // Jika tidak ada target yang diberikan, ambil target minimum dari semua data
         if ($targetSla === null) {
             $targetSla = self::min('target_sla') ?? 98.00;
         }
