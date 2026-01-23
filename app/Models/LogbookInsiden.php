@@ -146,7 +146,7 @@ class LogbookInsiden extends Model
 {
     return $slaTahunan >= $targetSla
         ? 'SLA Tercapai'
-        : 'SLA dTidak Tercapai';
+        : 'SLA Tidak Tercapai';
 }
 
 }
