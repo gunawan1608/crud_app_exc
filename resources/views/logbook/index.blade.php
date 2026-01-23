@@ -162,13 +162,13 @@
                                         {{ number_format($logbook->downtime_menit ?? 0) }}
                                     </td>
                                     <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap text-right">
-                                        {{ number_format($logbook->konversi_ke_jam ?? 0, 2) }}
+                                        {{ number_format($logbook->konversi_ke_jam ?? 0) }}
                                     </td>
                                     <td class="px-4 py-4 text-sm whitespace-nowrap">
-                                        <span class="font-semibold text-blue-700">{{ number_format($logbook->sla ?? 0, 4) }}%</span>
+                                        <span class="font-semibold text-blue-700">{{ number_format($logbook->sla ?? 0, 2) }}%</span>
                                     </td>
                                     <td class="px-4 py-4 text-sm whitespace-nowrap">
-                                        <span class="font-semibold text-indigo-700">{{ number_format($logbook->persentase_sla_tahunan ?? 0, 4) }}%</span>
+                                        <span class="font-semibold text-indigo-700">{{ number_format($logbook->persentase_sla_tahunan ?? 0, 2) }}%</span>
                                     </td>
                                     <td class="px-4 py-4 text-sm whitespace-nowrap">
                                         <span class="font-semibold text-gray-700">{{ number_format($logbook->target_sla ?? 98, 2) }}%</span>
