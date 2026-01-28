@@ -2,34 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LogInsidenInfrastruktur;
-use App\Http\Requests\LogInfrastrukturRequest;
+use App\Models\LogbookInsidenInfrastruktur;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class LogInfrastrukturController extends Controller
+class LogbookInsidenInfrastrukturController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $logs = LogInsidenInfrastruktur::latest()->paginate(10);
+        $logbooks = LogbookInsidenInfrastruktur::latest()->paginate(10);
 
-        // Hitung SLA tahunan
-        $slaTahunan = LogInsidenInfrastruktur::hitungSlaTahunan();
+        $totalInsidenInfrastruktur = LogbookInsidenInfrastruktur::count();
 
-        // Ambil target SLA terendah atau default
-        $targetSla = LogInsidenInfrastruktur::min('target_sla') ?? 98.00;
+        // Hitung SLA tahunan global
+        $slaTahunan = LogbookInsidenInfrastruktur::hitungSlaTahunanGlobal();
 
-        // Tentukan status SLA
-        $statusSla = LogInsidenInfrastruktur::tentukanStatusSla(
-            $slaTahunan,
-            $targetSla
-        );
+        // Target SLA global (default 98%)
+        $targetSla = 98.00;
 
-        return view('infrastruktur.index', compact(
-            'logs',
+        // Status SLA
+        $statusSla = $slaTahunan >= $targetSla ? 'TERCAPAI' : 'TIDAK TERCAPAI';
+
+        return view('logbook_infrastruktur.index', compact(
+            'logbooks',
             'slaTahunan',
             'targetSla',
             'statusSla'
@@ -41,15 +39,15 @@ class LogInfrastrukturController extends Controller
      */
     public function create()
     {
-        $slaTahunan = LogInsidenInfrastruktur::hitungSlaTahunan();
-        $targetSla = 98.00; // Default target
+        $slaTahunan = LogbookInsidenInfrastruktur::hitungSlaTahunanGlobal();
+        $targetSla = 98.00;
 
         // Get options from model
-        $lokasiOptions = LogInsidenInfrastruktur::getLokasiOptions();
-        $responderOptions = LogInsidenInfrastruktur::getResponderOptions();
-        $tipeInsidenOptions = LogInsidenInfrastruktur::getTipeInsidenOptions();
+        $lokasiOptions = LogbookInsidenInfrastruktur::getLokasiOptions();
+        $responderOptions = LogbookInsidenInfrastruktur::getResponderOptions();
+        $tipeInsidenOptions = LogbookInsidenInfrastruktur::getTipeInsidenOptions();
 
-        return view('infrastruktur.create', compact(
+        return view('logbook_infrastruktur.create', compact(
             'slaTahunan',
             'targetSla',
             'lokasiOptions',
@@ -61,93 +59,103 @@ class LogInfrastrukturController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(LogInfrastrukturRequest $request)
+    public function store(Request $request)
     {
-        $validated = $request->validated();
+        $validated = $request->validate([
+            // User Input Only
+            'pelapor' => 'required|string|max:255',
+            'metode_pelaporan' => 'required|string|max:100',
+            'waktu_mulai' => 'required|date',
+            'waktu_selesai' => 'required|date|after:waktu_mulai',
+            'keterangan_sla' => 'nullable|string',
+            'lokasi' => 'required|string|max:255',
+            'insiden' => 'required|string|max:255',
+            'tipe_insiden' => 'nullable|string|max:100',
+            'keterangan' => 'required|string',
+            'akar_penyebab' => 'nullable|string',
+            'tindak_lanjut_detail' => 'nullable|string',
+            'no_ticket' => 'nullable|string|max:100',
+            'direspon_oleh' => 'required|array|min:1',
+            'direspon_oleh.*' => 'string',
+        ]);
 
         // =========================
-        // HITUNG DOWNTIME (OTOMATIS)
+        // 6. HITUNG LAMA DOWNTIME (OTOMATIS)
         // =========================
         $waktuMulai = Carbon::parse($validated['waktu_mulai']);
         $waktuSelesai = Carbon::parse($validated['waktu_selesai']);
         $lamaDowntime = $waktuMulai->diffInMinutes($waktuSelesai);
-        $downtimeJam = round($lamaDowntime / 60, 2);
 
         // =========================
-        // HITUNG SLA PER KEJADIAN (OTOMATIS)
-        // Formula: SLA_persen = 100 - (downtime_jam / 24 * 100)
+        // 7. HITUNG KONVERSI KE JAM (OTOMATIS)
         // =========================
-        $jamPerHari = 24;
-        $slaPersen = 100 - (($downtimeJam / $jamPerHari) * 100);
-        $slaPersen = round($slaPersen, 6);
+        $konversiKeJam = round($lamaDowntime / 60, 2);
 
         // =========================
-        // HITUNG KONTRIBUSI SLA TAHUNAN (OTOMATIS)
-        // Formula: 100 - SLA_persen
+        // 8. HITUNG SLA PER KEJADIAN (OTOMATIS)
+        // Formula: SLA_per_kejadian = 100 - ((konversi_ke_jam / 8760) * 100)
         // =========================
-        $slaTahunan = 100 - $slaPersen;
-        $slaTahunan = round($slaTahunan, 6);
+        $jamTahunan = 8760;
+        $sla = 100 - (($konversiKeJam / $jamTahunan) * 100);
+        $sla = round($sla, 6);
+
+        // =========================
+        // 9. HITUNG % SLA TAHUNAN (OTOMATIS)
+        // Formula: persentase_sla_tahunan = 100 - SLA_per_kejadian
+        // =========================
+        $persentaseSlaTahunan = 100 - $sla;
+        $persentaseSlaTahunan = round($persentaseSlaTahunan, 6);
 
         // =========================
         // SIMPAN DATA
         // =========================
-        $log = LogInsidenInfrastruktur::create([
+        LogbookInsidenInfrastruktur::create([
+            // 2-3. Informasi Pelapor (USER INPUT)
+            'pelapor' => $validated['pelapor'],
+            'metode_pelaporan' => $validated['metode_pelaporan'],
+
+            // 4-5. Waktu (USER INPUT)
+            'waktu_mulai' => $validated['waktu_mulai'],
+            'waktu_selesai' => $validated['waktu_selesai'],
+
+            // 6-9. OTOMATIS
+            'lama_downtime' => $lamaDowntime,
+            'konversi_ke_jam' => $konversiKeJam,
+            'sla' => $sla,
+            'persentase_sla_tahunan' => $persentaseSlaTahunan,
+
+            // 10. Keterangan SLA
+            'keterangan_sla' => $validated['keterangan_sla'],
+
+            // 11-18. Detail Insiden (USER INPUT)
             'lokasi' => $validated['lokasi'],
             'insiden' => $validated['insiden'],
             'tipe_insiden' => $validated['tipe_insiden'],
             'keterangan' => $validated['keterangan'],
             'akar_penyebab' => $validated['akar_penyebab'],
-            'tindak_lanjut' => $validated['tindak_lanjut'],
+            'tindak_lanjut_detail' => $validated['tindak_lanjut_detail'],
             'no_ticket' => $validated['no_ticket'],
-            'direspon_oleh' => $validated['direspon_oleh'], // Will be cast to JSON automatically
-            'waktu_mulai' => $validated['waktu_mulai'],
-            'waktu_selesai' => $validated['waktu_selesai'],
-            'lama_downtime' => $lamaDowntime,
-            'downtime_jam' => $downtimeJam,
-            'sla_persen' => $slaPersen, // AUTO-CALCULATED
-            'sla_tahunan' => $slaTahunan, // AUTO-CALCULATED
-            'target_sla' => $validated['target_sla'], // USER INPUT
-            'status_sla' => null, // Akan diupdate di bawah
+            'direspon_oleh' => $validated['direspon_oleh'],
         ]);
 
-        // =========================
-        // HITUNG STATUS SLA (OTOMATIS)
-        // Bandingkan SLA Tahunan dengan Target SLA
-        // =========================
-        $statusSla = LogInsidenInfrastruktur::tentukanStatusSla(
-            $slaTahunan,
-            $validated['target_sla']
-        );
-
-        $log->update(['status_sla' => $statusSla]);
-
-        return redirect()->route('infrastruktur.index')
+        return redirect()->route('logbook_infrastruktur.index')
             ->with('success', 'Data insiden infrastruktur berhasil ditambahkan');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(LogInsidenInfrastruktur $infrastruktur)
-    {
-        return view('infrastruktur.show', compact('infrastruktur'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(LogInsidenInfrastruktur $infrastruktur)
+    public function edit(LogbookInsidenInfrastruktur $logbook_infrastruktur)
     {
-        $slaTahunan = LogInsidenInfrastruktur::hitungSlaTahunan();
+        $slaTahunan = LogbookInsidenInfrastruktur::hitungSlaTahunanGlobal();
         $targetSla = 98.00;
 
-        // Get options from model
-        $lokasiOptions = LogInsidenInfrastruktur::getLokasiOptions();
-        $responderOptions = LogInsidenInfrastruktur::getResponderOptions();
-        $tipeInsidenOptions = LogInsidenInfrastruktur::getTipeInsidenOptions();
+        $lokasiOptions = LogbookInsidenInfrastruktur::getLokasiOptions();
+        $responderOptions = LogbookInsidenInfrastruktur::getResponderOptions();
+        $tipeInsidenOptions = LogbookInsidenInfrastruktur::getTipeInsidenOptions();
 
-        return view('infrastruktur.edit', compact(
-            'infrastruktur',
+        return view('logbook_infrastruktur.edit', compact(
+            'logbook_infrastruktur',
             'slaTahunan',
             'targetSla',
             'lokasiOptions',
@@ -159,76 +167,73 @@ class LogInfrastrukturController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(LogInfrastrukturRequest $request, LogInsidenInfrastruktur $infrastruktur)
+    public function update(Request $request, LogbookInsidenInfrastruktur $logbook_infrastruktur)
     {
-        $validated = $request->validated();
+        $validated = $request->validate([
+            'pelapor' => 'required|string|max:255',
+            'metode_pelaporan' => 'required|string|max:100',
+            'waktu_mulai' => 'required|date',
+            'waktu_selesai' => 'required|date|after:waktu_mulai',
+            'keterangan_sla' => 'nullable|string',
+            'lokasi' => 'required|string|max:255',
+            'insiden' => 'required|string|max:255',
+            'tipe_insiden' => 'nullable|string|max:100',
+            'keterangan' => 'required|string',
+            'akar_penyebab' => 'nullable|string',
+            'tindak_lanjut_detail' => 'nullable|string',
+            'no_ticket' => 'nullable|string|max:100',
+            'direspon_oleh' => 'required|array|min:1',
+            'direspon_oleh.*' => 'string',
+        ]);
 
         // =========================
-        // HITUNG DOWNTIME (OTOMATIS)
+        // HITUNG ULANG SEMUA NILAI OTOMATIS
         // =========================
         $waktuMulai = Carbon::parse($validated['waktu_mulai']);
         $waktuSelesai = Carbon::parse($validated['waktu_selesai']);
         $lamaDowntime = $waktuMulai->diffInMinutes($waktuSelesai);
-        $downtimeJam = round($lamaDowntime / 60, 2);
-
-        // =========================
-        // HITUNG SLA PER KEJADIAN (OTOMATIS)
-        // Formula: SLA_persen = 100 - (downtime_jam / 24 * 100)
-        // =========================
-        $jamPerHari = 24;
-        $slaPersen = 100 - (($downtimeJam / $jamPerHari) * 100);
-        $slaPersen = round($slaPersen, 6);
-
-        // =========================
-        // HITUNG KONTRIBUSI SLA TAHUNAN (OTOMATIS)
-        // Formula: 100 - SLA_persen
-        // =========================
-        $slaTahunan = 100 - $slaPersen;
-        $slaTahunan = round($slaTahunan, 6);
+        $konversiKeJam = round($lamaDowntime / 60, 2);
+        $jamTahunan = 8760;
+        $sla = 100 - (($konversiKeJam / $jamTahunan) * 100);
+        $sla = round($sla, 6);
+        $persentaseSlaTahunan = 100 - $sla;
+        $persentaseSlaTahunan = round($persentaseSlaTahunan, 6);
 
         // =========================
         // UPDATE DATA
         // =========================
-        $infrastruktur->update([
+        $logbook_infrastruktur->update([
+            'pelapor' => $validated['pelapor'],
+            'metode_pelaporan' => $validated['metode_pelaporan'],
+            'waktu_mulai' => $validated['waktu_mulai'],
+            'waktu_selesai' => $validated['waktu_selesai'],
+            'lama_downtime' => $lamaDowntime,
+            'konversi_ke_jam' => $konversiKeJam,
+            'sla' => $sla,
+            'persentase_sla_tahunan' => $persentaseSlaTahunan,
+            'keterangan_sla' => $validated['keterangan_sla'],
             'lokasi' => $validated['lokasi'],
             'insiden' => $validated['insiden'],
             'tipe_insiden' => $validated['tipe_insiden'],
             'keterangan' => $validated['keterangan'],
             'akar_penyebab' => $validated['akar_penyebab'],
-            'tindak_lanjut' => $validated['tindak_lanjut'],
+            'tindak_lanjut_detail' => $validated['tindak_lanjut_detail'],
             'no_ticket' => $validated['no_ticket'],
             'direspon_oleh' => $validated['direspon_oleh'],
-            'waktu_mulai' => $validated['waktu_mulai'],
-            'waktu_selesai' => $validated['waktu_selesai'],
-            'lama_downtime' => $lamaDowntime,
-            'downtime_jam' => $downtimeJam,
-            'sla_persen' => $slaPersen,
-            'sla_tahunan' => $slaTahunan,
-            'target_sla' => $validated['target_sla'],
         ]);
 
-        // =========================
-        // HITUNG STATUS SLA (OTOMATIS)
-        // =========================
-        $statusSla = LogInsidenInfrastruktur::tentukanStatusSla(
-            $slaTahunan,
-            $validated['target_sla']
-        );
-
-        $infrastruktur->update(['status_sla' => $statusSla]);
-
-        return redirect()->route('infrastruktur.index')
+        return redirect()->route('logbook_infrastruktur.index')
             ->with('success', 'Data insiden infrastruktur berhasil diperbarui');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(LogInsidenInfrastruktur $infrastruktur)
+    public function destroy(LogbookInsidenInfrastruktur $logbook_infrastruktur)
     {
-        $infrastruktur->delete();
+        $logbook_infrastruktur->delete();
 
-        return redirect()->route('infrastruktur.index')
+        return redirect()->route('logbook_infrastruktur.index')
             ->with('success', 'Data insiden infrastruktur berhasil dihapus');
     }
 }
