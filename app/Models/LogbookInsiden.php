@@ -18,7 +18,7 @@ class LogbookInsiden extends Model
         'waktu_mulai',
         'waktu_selesai',
         'keterangan_waktu_selesai',
-        'downtime_menit',
+        'downtime_menit',   
         'konversi_ke_jam',
         'sla',
         'persentase_sla_tahunan',
