@@ -40,7 +40,7 @@
 
             <!-- SLA Dashboard -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                
+
                 <!-- SLA Tahunan -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                     <div class="flex items-start justify-between mb-4">
