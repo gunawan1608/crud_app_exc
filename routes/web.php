@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
 
     // CRUD Logbook Insiden Infrastruktur (FIXED ROUTE NAME)
     Route::resource('infrastruktur', LogbookInsidenInfrastrukturController::class)->except(['show']);
+    Route::resource('identitas-server', \App\Http\Controllers\IdentitasServerController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';
