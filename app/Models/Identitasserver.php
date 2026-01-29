@@ -11,38 +11,25 @@ class IdentitasServer extends Model
 
     protected $table = 'identitas_server';
 
-    /**
-     * Fillable sesuai urutan Excel
-     */
     protected $fillable = [
-        // 2-5. SERVER INFO
-        'no',                    // 2. No
-        'ip_host_server',        // 3. IP HOST SERVER
-        'nama_server',           // 4. NAMA SERVER
-        'lingkungan_server',     // 5. LINGKUNGAN SERVER
-
-        // 6-7. IP SERVER
-        'ip_local',              // 6. IP SERVER - LOCAL
-        'ip_public',             // 7. IP SERVER - PUBLIC
-
-        // 8-11. SYSTEM SPECS
-        'os',                    // 8. OS
-        'ram_gb',                // 9. RAM (GB)
-        'virtual_socket',        // 10. virtual socket
-        'core_per_socket',       // 11. Core per Socket
-
-        // 12-17. STORAGE & SOFTWARE
-        'harddisk_gb',           // 12. HARDDISK (GB)
-        'versi_php',             // 13. Versi PHP
-        'av_bitdefender',        // 14. AV BITDEFENDER
-        'administrator',         // 15. Administrator
-        'status',                // 16. Status
-        'keterangan',            // 17. Keterangan
+        'no',
+        'ip_host_server',
+        'nama_server',
+        'lingkungan_server',
+        'ip_local',
+        'ip_public',
+        'os',
+        'ram_gb',
+        'virtual_socket',
+        'core_per_socket',
+        'harddisk_gb',
+        'versi_php',
+        'av_bitdefender',
+        'administrator',
+        'status',
+        'keterangan',
     ];
 
-    /**
-     * Casting
-     */
     protected $casts = [
         'no' => 'integer',
         'ram_gb' => 'integer',
@@ -52,14 +39,27 @@ class IdentitasServer extends Model
     ];
 
     /**
+     * Daftar pilihan IP Host Server
+     */
+    public static function getIpHostServerOptions(): array
+    {
+        return [
+            '192.168.10.21' => '192.168.10.21',
+            '192.168.10.22' => '192.168.10.22',
+            '192.168.10.24' => '192.168.10.24',
+            '202.43.168.180' => '202.43.168.180',
+        ];
+    }
+
+    /**
      * Daftar pilihan Lingkungan Server
      */
     public static function getLingkunganOptions(): array
     {
         return [
+            'Production' => 'Production',
             'Development' => 'Development',
             'Staging' => 'Staging',
-            'Production' => 'Production',
         ];
     }
 
@@ -69,8 +69,7 @@ class IdentitasServer extends Model
     public static function getAvBitdefenderOptions(): array
     {
         return [
-            'Ada' => 'Ada',
-            'Tidak Ada' => 'Tidak Ada',
+            'ADA' => 'ADA',
             'TIDAK ADA' => 'TIDAK ADA',
         ];
     }
@@ -117,8 +116,8 @@ class IdentitasServer extends Model
     public function getAvColorAttribute(): string
     {
         return match($this->av_bitdefender) {
-            'Ada' => 'bg-green-100 text-green-800 border-green-200',
-            'Tidak Ada', 'TIDAK ADA' => 'bg-red-100 text-red-800 border-red-200',
+            'ADA' => 'bg-green-100 text-green-800 border-green-200',
+            'TIDAK ADA' => 'bg-red-100 text-red-800 border-red-200',
             default => 'bg-gray-100 text-gray-800 border-gray-200',
         };
     }

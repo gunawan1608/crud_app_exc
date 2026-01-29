@@ -32,47 +32,56 @@ class IdentitasServerController extends Controller
      */
     public function create()
     {
-        // Get next no
         $nextNo = IdentitasServer::max('no') + 1;
 
+        $ipHostOptions = IdentitasServer::getIpHostServerOptions();
         $lingkunganOptions = IdentitasServer::getLingkunganOptions();
         $avOptions = IdentitasServer::getAvBitdefenderOptions();
         $statusOptions = IdentitasServer::getStatusOptions();
 
         return view('identitas-server.create', compact(
             'nextNo',
+            'ipHostOptions',
             'lingkunganOptions',
             'avOptions',
             'statusOptions'
         ));
     }
 
+    public function edit(IdentitasServer $identitasServer)
+    {
+        $ipHostOptions = IdentitasServer::getIpHostServerOptions();
+        $lingkunganOptions = IdentitasServer::getLingkunganOptions();
+        $avOptions = IdentitasServer::getAvBitdefenderOptions();
+        $statusOptions = IdentitasServer::getStatusOptions();
+
+        return view('identitas-server.edit', compact(
+            'identitasServer',
+            'ipHostOptions',
+            'lingkunganOptions',
+            'avOptions',
+            'statusOptions'
+        ));
+    }
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            // 2-5. SERVER INFO
             'no' => 'required|integer|min:1|unique:identitas_server,no',
-            'ip_host_server' => 'required|ip',
+            'ip_host_server' => 'required|in:192.168.10.21,192.168.10.22,192.168.10.24,202.43.168.180',
             'nama_server' => 'required|string|max:255',
-            'lingkungan_server' => 'required|in:Development,Staging,Production',
-
-            // 6-7. IP SERVER
+            'lingkungan_server' => 'required|in:Production,Development,Staging',
             'ip_local' => 'nullable|ip',
             'ip_public' => 'nullable|ip',
-
-            // 8-11. SYSTEM SPECS
             'os' => 'nullable|string|max:100',
             'ram_gb' => 'nullable|integer|min:1',
             'virtual_socket' => 'nullable|integer|min:1',
             'core_per_socket' => 'nullable|integer|min:1',
-
-            // 12-17. STORAGE & SOFTWARE
             'harddisk_gb' => 'nullable|integer|min:1',
             'versi_php' => 'nullable|string|max:50',
-            'av_bitdefender' => 'nullable|in:Ada,Tidak Ada,TIDAK ADA',
+            'av_bitdefender' => 'nullable|in:ADA,TIDAK ADA',
             'administrator' => 'nullable|string|max:255',
             'status' => 'required|in:Aktif,Tidak Aktif',
             'keterangan' => 'nullable|string',
@@ -85,48 +94,24 @@ class IdentitasServerController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(IdentitasServer $identitasServer)
-    {
-        $lingkunganOptions = IdentitasServer::getLingkunganOptions();
-        $avOptions = IdentitasServer::getAvBitdefenderOptions();
-        $statusOptions = IdentitasServer::getStatusOptions();
-
-        return view('identitas-server.edit', compact(
-            'identitasServer',
-            'lingkunganOptions',
-            'avOptions',
-            'statusOptions'
-        ));
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, IdentitasServer $identitasServer)
     {
         $validated = $request->validate([
-            // 2-5. SERVER INFO
-            'no' => 'required|integer|min:1|unique:identitas_server,no,' . $identitasServer->id,
-            'ip_host_server' => 'required|ip',
+            'no' => 'required|integer|min:1|unique:identitas_server,no',
+            'ip_host_server' => 'required|in:192.168.10.21,192.168.10.22,192.168.10.24,202.43.168.180',
             'nama_server' => 'required|string|max:255',
-            'lingkungan_server' => 'required|in:Development,Staging,Production',
-
-            // 6-7. IP SERVER
+            'lingkungan_server' => 'required|in:Production,Development,Staging',
             'ip_local' => 'nullable|ip',
             'ip_public' => 'nullable|ip',
-
-            // 8-11. SYSTEM SPECS
             'os' => 'nullable|string|max:100',
             'ram_gb' => 'nullable|integer|min:1',
             'virtual_socket' => 'nullable|integer|min:1',
             'core_per_socket' => 'nullable|integer|min:1',
-
-            // 12-17. STORAGE & SOFTWARE
             'harddisk_gb' => 'nullable|integer|min:1',
             'versi_php' => 'nullable|string|max:50',
-            'av_bitdefender' => 'nullable|in:Ada,Tidak Ada,TIDAK ADA',
+            'av_bitdefender' => 'nullable|in:ADA,TIDAK ADA',
             'administrator' => 'nullable|string|max:255',
             'status' => 'required|in:Aktif,Tidak Aktif',
             'keterangan' => 'nullable|string',

@@ -3,14 +3,16 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
                 <a href="{{ route('identitas-server.index') }}"
-                   class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                    class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                 </a>
                 <div>
                     <h2 class="text-2xl font-semibold text-gray-800">Tambah Server Baru</h2>
-                    <p class="text-sm text-gray-500 mt-1">Dokumentasikan identitas server dengan lengkap dan terstruktur</p>
+                    <p class="text-sm text-gray-500 mt-1">Dokumentasikan identitas server dengan lengkap dan terstruktur
+                    </p>
                 </div>
             </div>
         </div>
@@ -43,9 +45,17 @@
                                 <label for="ip_host_server" class="block text-sm font-medium text-gray-700 mb-2">
                                     3. IP Host Server <span class="text-red-500">*</span>
                                 </label>
-                                <input id="ip_host_server" type="text" name="ip_host_server" value="{{ old('ip_host_server') }}"
+                                <select id="ip_host_server" name="ip_host_server"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('ip_host_server') border-red-300 @enderror"
-                                    required placeholder="192.168.10.22">
+                                    required>
+                                    <option value="">Pilih IP Host Server</option>
+                                    @foreach ($ipHostOptions as $value => $label)
+                                        <option value="{{ $value }}"
+                                            {{ old('ip_host_server') == $value ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 @error('ip_host_server')
                                     <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
                                 @enderror
@@ -55,7 +65,8 @@
                                 <label for="nama_server" class="block text-sm font-medium text-gray-700 mb-2">
                                     4. Nama Server <span class="text-red-500">*</span>
                                 </label>
-                                <input id="nama_server" type="text" name="nama_server" value="{{ old('nama_server') }}"
+                                <input id="nama_server" type="text" name="nama_server"
+                                    value="{{ old('nama_server') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('nama_server') border-red-300 @enderror"
                                     required placeholder="BSN-UBUNTU-PROD-ESIGN">
                                 @error('nama_server')
@@ -71,8 +82,9 @@
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('lingkungan_server') border-red-300 @enderror"
                                     required>
                                     <option value="">Pilih lingkungan</option>
-                                    @foreach($lingkunganOptions as $value => $label)
-                                        <option value="{{ $value }}" {{ old('lingkungan_server') == $value ? 'selected' : '' }}>
+                                    @foreach ($lingkunganOptions as $value => $label)
+                                        <option value="{{ $value }}"
+                                            {{ old('lingkungan_server') == $value ? 'selected' : '' }}>
                                             {{ $label }}
                                         </option>
                                     @endforeach
@@ -142,7 +154,8 @@
                                 <label for="virtual_socket" class="block text-sm font-medium text-gray-700 mb-2">
                                     10. Virtual Socket
                                 </label>
-                                <input id="virtual_socket" type="number" name="virtual_socket" value="{{ old('virtual_socket') }}"
+                                <input id="virtual_socket" type="number" name="virtual_socket"
+                                    value="{{ old('virtual_socket') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                     placeholder="2">
                             </div>
@@ -151,7 +164,8 @@
                                 <label for="core_per_socket" class="block text-sm font-medium text-gray-700 mb-2">
                                     11. Core per Socket
                                 </label>
-                                <input id="core_per_socket" type="number" name="core_per_socket" value="{{ old('core_per_socket') }}"
+                                <input id="core_per_socket" type="number" name="core_per_socket"
+                                    value="{{ old('core_per_socket') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                     placeholder="2">
                             </div>
@@ -168,7 +182,8 @@
                                     <label for="harddisk_gb" class="block text-sm font-medium text-gray-700 mb-2">
                                         12. Harddisk (GB)
                                     </label>
-                                    <input id="harddisk_gb" type="number" name="harddisk_gb" value="{{ old('harddisk_gb') }}"
+                                    <input id="harddisk_gb" type="number" name="harddisk_gb"
+                                        value="{{ old('harddisk_gb') }}"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="55">
                                 </div>
@@ -177,7 +192,8 @@
                                     <label for="versi_php" class="block text-sm font-medium text-gray-700 mb-2">
                                         13. Versi PHP
                                     </label>
-                                    <input id="versi_php" type="text" name="versi_php" value="{{ old('versi_php') }}"
+                                    <input id="versi_php" type="text" name="versi_php"
+                                        value="{{ old('versi_php') }}"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="8.1">
                                 </div>
@@ -189,8 +205,9 @@
                                     <select id="av_bitdefender" name="av_bitdefender"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                                         <option value="">Pilih status</option>
-                                        @foreach($avOptions as $value => $label)
-                                            <option value="{{ $value }}" {{ old('av_bitdefender') == $value ? 'selected' : '' }}>
+                                        @foreach ($avOptions as $value => $label)
+                                            <option value="{{ $value }}"
+                                                {{ old('av_bitdefender') == $value ? 'selected' : '' }}>
                                                 {{ $label }}
                                             </option>
                                         @endforeach
@@ -201,7 +218,8 @@
                                     <label for="administrator" class="block text-sm font-medium text-gray-700 mb-2">
                                         15. Administrator
                                     </label>
-                                    <input id="administrator" type="text" name="administrator" value="{{ old('administrator') }}"
+                                    <input id="administrator" type="text" name="administrator"
+                                        value="{{ old('administrator') }}"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="admin12">
                                 </div>
@@ -213,8 +231,9 @@
                                     <select id="status" name="status"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('status') border-red-300 @enderror"
                                         required>
-                                        @foreach($statusOptions as $value => $label)
-                                            <option value="{{ $value }}" {{ old('status', 'Aktif') == $value ? 'selected' : '' }}>
+                                        @foreach ($statusOptions as $value => $label)
+                                            <option value="{{ $value }}"
+                                                {{ old('status', 'Aktif') == $value ? 'selected' : '' }}>
                                                 {{ $label }}
                                             </option>
                                         @endforeach
@@ -246,7 +265,8 @@
                             <button type="submit"
                                 class="inline-flex items-center px-5 py-2.5 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                                 Simpan Data
                             </button>
