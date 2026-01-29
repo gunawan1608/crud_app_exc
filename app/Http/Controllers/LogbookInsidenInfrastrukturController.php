@@ -15,8 +15,6 @@ class LogbookInsidenInfrastrukturController extends Controller
     {
         $logbooks = LogbookInsidenInfrastruktur::latest()->paginate(10);
 
-        $totalInsidenInfrastruktur = LogbookInsidenInfrastruktur::count();
-
         // Hitung SLA tahunan global
         $slaTahunan = LogbookInsidenInfrastruktur::hitungSlaTahunanGlobal();
 
@@ -26,7 +24,7 @@ class LogbookInsidenInfrastrukturController extends Controller
         // Status SLA
         $statusSla = $slaTahunan >= $targetSla ? 'TERCAPAI' : 'TIDAK TERCAPAI';
 
-        return view('logbook_infrastruktur.index', compact(
+        return view('infrastruktur.index', compact(
             'logbooks',
             'slaTahunan',
             'targetSla',
@@ -47,7 +45,7 @@ class LogbookInsidenInfrastrukturController extends Controller
         $responderOptions = LogbookInsidenInfrastruktur::getResponderOptions();
         $tipeInsidenOptions = LogbookInsidenInfrastruktur::getTipeInsidenOptions();
 
-        return view('logbook_infrastruktur.create', compact(
+        return view('infrastruktur.create', compact(
             'slaTahunan',
             'targetSla',
             'lokasiOptions',
@@ -138,14 +136,14 @@ class LogbookInsidenInfrastrukturController extends Controller
             'direspon_oleh' => $validated['direspon_oleh'],
         ]);
 
-        return redirect()->route('logbook_infrastruktur.index')
+        return redirect()->route('infrastruktur.index')
             ->with('success', 'Data insiden infrastruktur berhasil ditambahkan');
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(LogbookInsidenInfrastruktur $logbook_infrastruktur)
+    public function edit(LogbookInsidenInfrastruktur $infrastruktur)
     {
         $slaTahunan = LogbookInsidenInfrastruktur::hitungSlaTahunanGlobal();
         $targetSla = 98.00;
@@ -154,8 +152,8 @@ class LogbookInsidenInfrastrukturController extends Controller
         $responderOptions = LogbookInsidenInfrastruktur::getResponderOptions();
         $tipeInsidenOptions = LogbookInsidenInfrastruktur::getTipeInsidenOptions();
 
-        return view('logbook_infrastruktur.edit', compact(
-            'logbook_infrastruktur',
+        return view('infrastruktur.edit', compact(
+            'infrastruktur',
             'slaTahunan',
             'targetSla',
             'lokasiOptions',
@@ -167,7 +165,7 @@ class LogbookInsidenInfrastrukturController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, LogbookInsidenInfrastruktur $logbook_infrastruktur)
+    public function update(Request $request, LogbookInsidenInfrastruktur $infrastruktur)
     {
         $validated = $request->validate([
             'pelapor' => 'required|string|max:255',
@@ -202,7 +200,7 @@ class LogbookInsidenInfrastrukturController extends Controller
         // =========================
         // UPDATE DATA
         // =========================
-        $logbook_infrastruktur->update([
+        $infrastruktur->update([
             'pelapor' => $validated['pelapor'],
             'metode_pelaporan' => $validated['metode_pelaporan'],
             'waktu_mulai' => $validated['waktu_mulai'],
@@ -222,18 +220,18 @@ class LogbookInsidenInfrastrukturController extends Controller
             'direspon_oleh' => $validated['direspon_oleh'],
         ]);
 
-        return redirect()->route('logbook_infrastruktur.index')
+        return redirect()->route('infrastruktur.index')
             ->with('success', 'Data insiden infrastruktur berhasil diperbarui');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(LogbookInsidenInfrastruktur $logbook_infrastruktur)
+    public function destroy(LogbookInsidenInfrastruktur $infrastruktur)
     {
-        $logbook_infrastruktur->delete();
+        $infrastruktur->delete();
 
-        return redirect()->route('logbook_infrastruktur.index')
+        return redirect()->route('infrastruktur.index')
             ->with('success', 'Data insiden infrastruktur berhasil dihapus');
     }
 }

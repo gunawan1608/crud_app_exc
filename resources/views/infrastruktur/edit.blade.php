@@ -39,21 +39,19 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="bg-white rounded-lg p-3 border border-blue-100">
                         <p class="text-xs text-gray-600 mb-1">SLA Kejadian</p>
-                        <p class="text-lg font-semibold text-blue-700">{{ number_format($infrastruktur->sla_persen ?? 0, 2) }}%</p>
+                        <p class="text-lg font-semibold text-blue-700">{{ number_format($infrastruktur->sla ?? 0, 2) }}%</p>
                     </div>
                     <div class="bg-white rounded-lg p-3 border border-blue-100">
                         <p class="text-xs text-gray-600 mb-1">Downtime</p>
                         <p class="text-lg font-semibold text-blue-700">{{ $infrastruktur->getDowntimeFormatted() }}</p>
                     </div>
                     <div class="bg-white rounded-lg p-3 border border-blue-100">
-                        <p class="text-xs text-gray-600 mb-1">Target SLA</p>
-                        <p class="text-lg font-semibold text-blue-700">{{ number_format($infrastruktur->target_sla ?? 98, 2) }}%</p>
+                        <p class="text-xs text-gray-600 mb-1">Lokasi</p>
+                        <p class="text-sm font-semibold text-blue-700">{{ $infrastruktur->lokasi }}</p>
                     </div>
                     <div class="bg-white rounded-lg p-3 border border-blue-100">
                         <p class="text-xs text-gray-600 mb-1">Status</p>
-                        <p class="text-sm font-semibold {{ $infrastruktur->status_sla === 'SLA TERCAPAI' ? 'text-green-700' : 'text-red-700' }}">
-                            {{ $infrastruktur->status_sla ?? 'N/A' }}
-                        </p>
+                        <p class="text-sm font-semibold text-green-700">Updated</p>
                     </div>
                 </div>
                 <p class="text-xs text-blue-700 mt-3">Nilai akan diperbarui otomatis setelah form disimpan</p>
@@ -64,76 +62,52 @@
                     @csrf
                     @method('PUT')
 
-                    <!-- Informasi Lokasi & Insiden -->
+                    <!-- 2-3. Informasi Pelapor -->
                     <div class="border-b border-gray-200 p-6">
-                        <h3 class="text-base font-semibold text-gray-900 mb-4">Informasi Lokasi & Insiden</h3>
+                        <h3 class="text-base font-semibold text-gray-900 mb-4">2-3. Informasi Pelapor</h3>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label for="lokasi" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Lokasi <span class="text-red-500">*</span>
+                                <label for="pelapor" class="block text-sm font-medium text-gray-700 mb-2">
+                                    2. Pelapor <span class="text-red-500">*</span>
                                 </label>
-                                <select id="lokasi" name="lokasi"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('lokasi') border-red-300 @enderror"
-                                    required autofocus>
-                                    <option value="">Pilih lokasi</option>
-                                    @foreach($lokasiOptions as $value => $label)
-                                        <option value="{{ $value }}" {{ old('lokasi', $infrastruktur->lokasi) == $value ? 'selected' : '' }}>
-                                            {{ $label }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('lokasi')
+                                <input id="pelapor" type="text" name="pelapor" value="{{ old('pelapor', $infrastruktur->pelapor) }}"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('pelapor') border-red-300 @enderror"
+                                    required autofocus placeholder="Nama pelapor">
+                                @error('pelapor')
                                     <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="tipe_insiden" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Tipe Insiden
+                                <label for="metode_pelaporan" class="block text-sm font-medium text-gray-700 mb-2">
+                                    3. Metode Pelaporan <span class="text-red-500">*</span>
                                 </label>
-                                <select id="tipe_insiden" name="tipe_insiden"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
-                                    <option value="">Pilih tipe insiden</option>
-                                    @foreach($tipeInsidenOptions as $tipe)
-                                        <option value="{{ $tipe }}" {{ old('tipe_insiden', $infrastruktur->tipe_insiden) == $tipe ? 'selected' : '' }}>
-                                            {{ $tipe }}
-                                        </option>
-                                    @endforeach
+                                <select id="metode_pelaporan" name="metode_pelaporan"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('metode_pelaporan') border-red-300 @enderror"
+                                    required>
+                                    <option value="">Pilih metode</option>
+                                    <option value="Email" {{ old('metode_pelaporan', $infrastruktur->metode_pelaporan) == 'Email' ? 'selected' : '' }}>Email</option>
+                                    <option value="Telepon" {{ old('metode_pelaporan', $infrastruktur->metode_pelaporan) == 'Telepon' ? 'selected' : '' }}>Telepon</option>
+                                    <option value="WhatsApp" {{ old('metode_pelaporan', $infrastruktur->metode_pelaporan) == 'WhatsApp' ? 'selected' : '' }}>WhatsApp</option>
+                                    <option value="Langsung" {{ old('metode_pelaporan', $infrastruktur->metode_pelaporan) == 'Langsung' ? 'selected' : '' }}>Langsung</option>
+                                    <option value="Sistem" {{ old('metode_pelaporan', $infrastruktur->metode_pelaporan) == 'Sistem' ? 'selected' : '' }}>Sistem</option>
                                 </select>
+                                @error('metode_pelaporan')
+                                    <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
-                        </div>
-
-                        <div class="mb-5">
-                            <label for="insiden" class="block text-sm font-medium text-gray-700 mb-2">
-                                Nama Insiden <span class="text-red-500">*</span>
-                            </label>
-                            <input id="insiden" type="text" name="insiden" value="{{ old('insiden', $infrastruktur->insiden) }}"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('insiden') border-red-300 @enderror"
-                                required placeholder="Contoh: Gangguan Listrik, Kerusakan AC, dll.">
-                            @error('insiden')
-                                <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="no_ticket" class="block text-sm font-medium text-gray-700 mb-2">
-                                No Ticket
-                            </label>
-                            <input id="no_ticket" type="text" name="no_ticket" value="{{ old('no_ticket', $infrastruktur->no_ticket) }}"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                placeholder="TKT-2026-001">
                         </div>
                     </div>
 
-                    <!-- Waktu & Downtime -->
+                    <!-- 4-5. Waktu & Downtime -->
                     <div class="border-b border-gray-200 p-6">
-                        <h3 class="text-base font-semibold text-gray-900 mb-4">Waktu & Downtime</h3>
+                        <h3 class="text-base font-semibold text-gray-900 mb-4">4-5. Waktu Insiden</h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                             <div>
                                 <label for="waktu_mulai" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Waktu Mulai <span class="text-red-500">*</span>
+                                    4. Waktu Mulai <span class="text-red-500">*</span>
                                 </label>
                                 <input id="waktu_mulai" type="datetime-local" name="waktu_mulai"
                                     value="{{ old('waktu_mulai', $infrastruktur->waktu_mulai->format('Y-m-d\TH:i')) }}"
@@ -146,7 +120,7 @@
 
                             <div>
                                 <label for="waktu_selesai" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Waktu Selesai <span class="text-red-500">*</span>
+                                    5. Waktu Selesai <span class="text-red-500">*</span>
                                 </label>
                                 <input id="waktu_selesai" type="datetime-local" name="waktu_selesai"
                                     value="{{ old('waktu_selesai', $infrastruktur->waktu_selesai->format('Y-m-d\TH:i')) }}"
@@ -171,39 +145,102 @@
                         </div>
                     </div>
 
-                    <!-- Konfigurasi SLA -->
+                    <!-- 10. Keterangan SLA -->
                     <div class="border-b border-gray-200 p-6">
-                        <h3 class="text-base font-semibold text-gray-900 mb-4">Konfigurasi SLA</h3>
+                        <h3 class="text-base font-semibold text-gray-900 mb-4">10. Keterangan SLA</h3>
 
                         <div>
-                            <label for="target_sla" class="block text-sm font-medium text-gray-700 mb-2">
-                                Target SLA (%) <span class="text-red-500">*</span>
+                            <label for="keterangan_sla" class="block text-sm font-medium text-gray-700 mb-2">
+                                Keterangan SLA <span class="text-gray-400">(Opsional)</span>
                             </label>
-                            <input id="target_sla" type="number" step="0.01" name="target_sla"
-                                value="{{ old('target_sla', $infrastruktur->target_sla ?? 98.00) }}"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                placeholder="98.00" required>
-                            <p class="text-xs text-gray-500 mt-1.5">Standar kebijakan: 98%</p>
+                            <textarea id="keterangan_sla" name="keterangan_sla" rows="2"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                                placeholder="Catatan tambahan tentang SLA...">{{ old('keterangan_sla', $infrastruktur->keterangan_sla) }}</textarea>
                         </div>
                     </div>
 
-                    <!-- Deskripsi Insiden -->
+                    <!-- 11-13. Informasi Lokasi & Insiden -->
                     <div class="border-b border-gray-200 p-6">
-                        <h3 class="text-base font-semibold text-gray-900 mb-4">Deskripsi Insiden</h3>
+                        <h3 class="text-base font-semibold text-gray-900 mb-4">11-13. Informasi Lokasi & Insiden</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                            <div>
+                                <label for="lokasi" class="block text-sm font-medium text-gray-700 mb-2">
+                                    11. Lokasi <span class="text-red-500">*</span>
+                                </label>
+                                <select id="lokasi" name="lokasi"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('lokasi') border-red-300 @enderror"
+                                    required>
+                                    <option value="">Pilih lokasi</option>
+                                    @foreach($lokasiOptions as $value => $label)
+                                        <option value="{{ $value }}" {{ old('lokasi', $infrastruktur->lokasi) == $value ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('lokasi')
+                                    <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="tipe_insiden" class="block text-sm font-medium text-gray-700 mb-2">
+                                    13. Tipe Insiden
+                                </label>
+                                <select id="tipe_insiden" name="tipe_insiden"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                                    <option value="">Pilih tipe insiden</option>
+                                    @foreach($tipeInsidenOptions as $tipe)
+                                        <option value="{{ $tipe }}" {{ old('tipe_insiden', $infrastruktur->tipe_insiden) == $tipe ? 'selected' : '' }}>
+                                            {{ $tipe }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <label for="insiden" class="block text-sm font-medium text-gray-700 mb-2">
+                                12. Nama Insiden <span class="text-red-500">*</span>
+                            </label>
+                            <input id="insiden" type="text" name="insiden" value="{{ old('insiden', $infrastruktur->insiden) }}"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('insiden') border-red-300 @enderror"
+                                required placeholder="Contoh: Gangguan Listrik, Kerusakan AC, dll.">
+                            @error('insiden')
+                                <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="no_ticket" class="block text-sm font-medium text-gray-700 mb-2">
+                                17. No Ticket <span class="text-gray-400">(Jika ada)</span>
+                            </label>
+                            <input id="no_ticket" type="text" name="no_ticket" value="{{ old('no_ticket', $infrastruktur->no_ticket) }}"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                placeholder="TKT-2026-001">
+                        </div>
+                    </div>
+
+                    <!-- 14-16. Deskripsi Insiden -->
+                    <div class="border-b border-gray-200 p-6">
+                        <h3 class="text-base font-semibold text-gray-900 mb-4">14-16. Deskripsi Insiden</h3>
 
                         <div class="space-y-5">
                             <div>
                                 <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Keterangan Insiden
+                                    14. Keterangan Insiden <span class="text-red-500">*</span>
                                 </label>
                                 <textarea id="keterangan" name="keterangan" rows="4"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
-                                    placeholder="Jelaskan detail insiden yang terjadi...">{{ old('keterangan', $infrastruktur->keterangan) }}</textarea>
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none @error('keterangan') border-red-300 @enderror"
+                                    placeholder="Jelaskan detail insiden yang terjadi..." required>{{ old('keterangan', $infrastruktur->keterangan) }}</textarea>
+                                @error('keterangan')
+                                    <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div>
                                 <label for="akar_penyebab" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Akar Penyebab
+                                    15. Akar Penyebab
                                 </label>
                                 <textarea id="akar_penyebab" name="akar_penyebab" rows="3"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
@@ -211,38 +248,61 @@
                             </div>
 
                             <div>
-                                <label for="tindak_lanjut" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Tindak Lanjut
+                                <label for="tindak_lanjut_detail" class="block text-sm font-medium text-gray-700 mb-2">
+                                    16. Tindak Lanjut (Detail)
                                 </label>
-                                <textarea id="tindak_lanjut" name="tindak_lanjut" rows="3"
+                                <textarea id="tindak_lanjut_detail" name="tindak_lanjut_detail" rows="3"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
-                                    placeholder="Langkah-langkah tindak lanjut yang dilakukan...">{{ old('tindak_lanjut', $infrastruktur->tindak_lanjut) }}</textarea>
+                                    placeholder="Langkah-langkah tindak lanjut yang dilakukan...">{{ old('tindak_lanjut_detail', $infrastruktur->tindak_lanjut_detail) }}</textarea>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Penanganan -->
+                    <!-- 18. Penanganan (Multi-select dengan UI modern) -->
                     <div class="border-b border-gray-200 p-6">
-                        <h3 class="text-base font-semibold text-gray-900 mb-4">Penanganan</h3>
+                        <h3 class="text-base font-semibold text-gray-900 mb-4">18. Penanganan</h3>
 
                         <div>
-                            <label for="direspon_oleh" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Direspon Oleh <span class="text-red-500">*</span>
                             </label>
-                            <select id="direspon_oleh" name="direspon_oleh[]" multiple
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('direspon_oleh') border-red-300 @enderror"
-                                required size="6">
-                                @foreach($responderOptions as $responder)
-                                    <option value="{{ $responder }}"
-                                        {{ in_array($responder, old('direspon_oleh', $infrastruktur->direspon_oleh ?? [])) ? 'selected' : '' }}>
-                                        {{ $responder }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1.5">Tekan Ctrl (Windows) atau Cmd (Mac) untuk memilih lebih dari satu</p>
+
+                            <!-- Hidden inputs for selected values -->
+                            <div id="selected-responders-container"></div>
+
+                            <!-- Custom Multi-Select UI -->
+                            <div class="border border-gray-300 rounded-lg p-3 bg-white">
+                                <!-- Selected Items Display -->
+                                <div id="selected-items" class="flex flex-wrap gap-2 mb-3 min-h-[32px]">
+                                    <span class="text-sm text-gray-400 italic" id="placeholder-text">Pilih responder...</span>
+                                </div>
+
+                                <!-- Dropdown Toggle Button -->
+                                <button type="button" id="dropdown-toggle"
+                                    class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-left hover:bg-gray-100 transition-colors flex items-center justify-between">
+                                    <span class="text-gray-700">Tambah Responder</span>
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+
+                                <!-- Dropdown List -->
+                                <div id="responders-dropdown" class="hidden mt-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg bg-white shadow-lg">
+                                    @foreach($responderOptions as $responder)
+                                        <label class="flex items-center px-3 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0">
+                                            <input type="checkbox" name="direspon_oleh[]" value="{{ $responder }}"
+                                                class="responder-checkbox w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                {{ in_array($responder, old('direspon_oleh', $infrastruktur->direspon_oleh ?? [])) ? 'checked' : '' }}>
+                                            <span class="ml-3 text-sm text-gray-700">{{ $responder }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+
                             @error('direspon_oleh')
                                 <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
                             @enderror
+                            <p class="text-xs text-gray-500 mt-1.5">Pilih satu atau lebih responder</p>
                         </div>
                     </div>
 
@@ -266,4 +326,75 @@
             </div>
         </div>
     </div>
+
+    <!-- JavaScript for Multi-Select (Same as create) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownToggle = document.getElementById('dropdown-toggle');
+            const dropdown = document.getElementById('responders-dropdown');
+            const selectedItemsContainer = document.getElementById('selected-items');
+            const placeholderText = document.getElementById('placeholder-text');
+            const checkboxes = document.querySelectorAll('.responder-checkbox');
+
+            // Toggle dropdown
+            dropdownToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target) && e.target !== dropdownToggle) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+
+            // Handle checkbox changes
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedItems);
+            });
+
+            // Initialize on page load
+            updateSelectedItems();
+
+            function updateSelectedItems() {
+                const selected = Array.from(checkboxes)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value);
+
+                // Clear current display
+                selectedItemsContainer.innerHTML = '';
+
+                if (selected.length === 0) {
+                    placeholderText.classList.remove('hidden');
+                } else {
+                    placeholderText.classList.add('hidden');
+
+                    // Create badge for each selected item
+                    selected.forEach(name => {
+                        const badge = document.createElement('span');
+                        badge.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200';
+                        badge.innerHTML = `
+                            ${name}
+                            <button type="button" class="ml-2 text-blue-600 hover:text-blue-800" onclick="removeResponder('${name}')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        `;
+                        selectedItemsContainer.appendChild(badge);
+                    });
+                }
+            }
+
+            // Global function to remove responder
+            window.removeResponder = function(name) {
+                const checkbox = Array.from(checkboxes).find(cb => cb.value === name);
+                if (checkbox) {
+                    checkbox.checked = false;
+                    updateSelectedItems();
+                }
+            };
+        });
+    </script>
 </x-app-layout>

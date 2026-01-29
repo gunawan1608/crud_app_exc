@@ -23,26 +23,23 @@ Route::get('/login', function () {
 
 // DASHBOARD
 Route::get('/dashboard', function () {
-    // Get stats for all logbook types
+    // Get stats for Logbook Insiden Aplikasi
     $totalInsidenAplikasi = \App\Models\LogbookInsiden::count();
-    $totalInsidenInfrastrukturBaru = \App\Models\LogbookInsidenInfrastruktur::count();
-
     $bulanIniAplikasi = \App\Models\LogbookInsiden::whereMonth('created_at', now()->month)->count();
-    $bulanIniInfrastrukturBaru = \App\Models\LogbookInsidenInfrastruktur::whereMonth('created_at', now()->month)->count();
-
     $downtimeAplikasi = \App\Models\LogbookInsiden::sum('downtime_menit');
-    $downtimeInfrastrukturBaru = \App\Models\LogbookInsidenInfrastruktur::sum('lama_downtime');
+
+    // Get stats for Logbook Insiden Infrastruktur
+    $totalInsidenInfrastruktur = \App\Models\LogbookInsidenInfrastruktur::count();
+    $bulanIniInfrastruktur = \App\Models\LogbookInsidenInfrastruktur::whereMonth('created_at', now()->month)->count();
+    $downtimeInfrastruktur = \App\Models\LogbookInsidenInfrastruktur::sum('lama_downtime');
 
     return view('dashboard', compact(
         'totalInsidenAplikasi',
         'totalInsidenInfrastruktur',
-        'totalInsidenInfrastrukturBaru',
         'bulanIniAplikasi',
         'bulanIniInfrastruktur',
-        'bulanIniInfrastrukturBaru',
         'downtimeAplikasi',
-        'downtimeInfrastruktur',
-        'downtimeInfrastrukturBaru'
+        'downtimeInfrastruktur'
     ));
 })->middleware('auth')->name('dashboard');
 
@@ -61,8 +58,8 @@ Route::middleware('auth')->group(function () {
     // CRUD Logbook Insiden (Aplikasi)
     Route::resource('logbook', LogbookInsidenController::class)->except(['show']);
 
-    // CRUD Logbook Insiden Infrastruktur (BARU - Sesuai Excel)
-    Route::resource('logbook_infrastruktur', LogbookInsidenInfrastrukturController::class)->except(['show']);
+    // CRUD Logbook Insiden Infrastruktur (FIXED ROUTE NAME)
+    Route::resource('infrastruktur', LogbookInsidenInfrastrukturController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';

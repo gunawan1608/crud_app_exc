@@ -6,7 +6,7 @@
                 <p class="text-sm text-gray-500 mt-1">Kelola dan monitor insiden infrastruktur (Urutan sesuai Excel)</p>
             </div>
             <div class="flex items-center space-x-3">
-                <a href="{{ route('logbook_infrastruktur.create') }}"
+                <a href="{{ route('infrastruktur.create') }}"
                     class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -250,14 +250,14 @@
                                     <!-- Aksi -->
                                     <td class="px-4 py-4 text-center whitespace-nowrap">
                                         <div class="flex items-center justify-center space-x-2">
-                                            <a href="{{ route('logbook_infrastruktur.edit', $logbook) }}"
+                                            <a href="{{ route('infrastruktur.edit', $logbook) }}"
                                                 class="p-1 text-blue-600 hover:text-blue-800 transition-colors" title="Edit">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </a>
-                                            <form action="{{ route('logbook_infrastruktur.destroy', $logbook) }}" method="POST"
+                                            <form action="{{ route('infrastruktur.destroy', $logbook) }}" method="POST"
                                                 onsubmit="return confirm('Yakin ingin menghapus data insiden {{ $logbook->insiden }}?');">
                                                 @csrf
                                                 @method('DELETE')

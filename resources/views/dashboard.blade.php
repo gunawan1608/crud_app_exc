@@ -26,7 +26,7 @@
                                     Total Insiden
                                 </p>
                                 <p class="text-3xl font-semibold text-gray-900 mb-1">
-                                    {{ \App\Models\LogbookInsiden::count() }}
+                                    {{ $totalInsidenAplikasi }}
                                 </p>
                                 <p class="text-xs text-gray-400">Keseluruhan data</p>
                             </div>
@@ -41,7 +41,7 @@
                                     Bulan Ini
                                 </p>
                                 <p class="text-3xl font-semibold text-gray-900 mb-1">
-                                    {{ \App\Models\LogbookInsiden::whereMonth('created_at', now()->month)->count() }}
+                                    {{ $bulanIniAplikasi }}
                                 </p>
                                 <p class="text-xs text-gray-400">{{ now()->locale('id')->isoFormat('MMMM YYYY') }}</p>
                             </div>
@@ -56,9 +56,8 @@
                                     Total Downtime
                                 </p>
                                 @php
-                                    $totalMenit = \App\Models\LogbookInsiden::sum('downtime_menit');
-                                    $jam = floor($totalMenit / 60);
-                                    $menit = $totalMenit % 60;
+                                    $jam = floor($downtimeAplikasi / 60);
+                                    $menit = $downtimeAplikasi % 60;
                                 @endphp
                                 <p class="text-3xl font-semibold text-gray-900 mb-1">
                                     {{ $jam }}<span class="text-xl text-gray-500">j</span> {{ $menit }}<span class="text-xl text-gray-500">m</span>
@@ -84,7 +83,7 @@
                                     Total Insiden
                                 </p>
                                 <p class="text-3xl font-semibold text-gray-900 mb-1">
-                                    {{ \App\Models\LogInsidenInfrastruktur::count() }}
+                                    {{ $totalInsidenInfrastruktur }}
                                 </p>
                                 <p class="text-xs text-gray-400">Keseluruhan data</p>
                             </div>
@@ -99,7 +98,7 @@
                                     Bulan Ini
                                 </p>
                                 <p class="text-3xl font-semibold text-gray-900 mb-1">
-                                    {{ \App\Models\LogInsidenInfrastruktur::whereMonth('created_at', now()->month)->count() }}
+                                    {{ $bulanIniInfrastruktur }}
                                 </p>
                                 <p class="text-xs text-gray-400">{{ now()->locale('id')->isoFormat('MMMM YYYY') }}</p>
                             </div>
@@ -114,9 +113,8 @@
                                     Total Downtime
                                 </p>
                                 @php
-                                    $totalMenitInfra = \App\Models\LogInsidenInfrastruktur::sum('lama_downtime');
-                                    $jamInfra = floor($totalMenitInfra / 60);
-                                    $menitInfra = $totalMenitInfra % 60;
+                                    $jamInfra = floor($downtimeInfrastruktur / 60);
+                                    $menitInfra = $downtimeInfrastruktur % 60;
                                 @endphp
                                 <p class="text-3xl font-semibold text-gray-900 mb-1">
                                     {{ $jamInfra }}<span class="text-xl text-gray-500">j</span> {{ $menitInfra }}<span class="text-xl text-gray-500">m</span>
