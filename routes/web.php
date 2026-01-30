@@ -6,6 +6,7 @@ use App\Http\Controllers\LogbookInsidenController;
 use App\Http\Controllers\LogbookInsidenInfrastrukturController;
 use App\Http\Controllers\IdentitasServerController;
 use App\Http\Controllers\HakAksesServerController;
+use App\Http\Controllers\CatatanSocController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +69,11 @@ Route::middleware('auth')->group(function () {
 
     // CRUD Hak Akses Server
     Route::resource('hak-akses-server', HakAksesServerController::class)->except(['show']);
+
+    // CRUD Catatan SOC
+    Route::resource('catatan-soc', CatatanSocController::class)->except(['show']);
+    Route::get('/catatan-soc/{catatanSoc}/print', [CatatanSocController::class, 'print'])->name('catatan-soc.print');
+    Route::get('/catatan-soc/{catatanSoc}/download-pdf', [CatatanSocController::class, 'downloadPdf'])->name('catatan-soc.download-pdf');
 });
 
 require __DIR__.'/auth.php';
