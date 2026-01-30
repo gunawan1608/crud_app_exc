@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LogbookInsidenController;
 use App\Http\Controllers\LogbookInsidenInfrastrukturController;
+use App\Http\Controllers\IdentitasServerController;
+use App\Http\Controllers\HakAksesServerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,9 +60,14 @@ Route::middleware('auth')->group(function () {
     // CRUD Logbook Insiden (Aplikasi)
     Route::resource('logbook', LogbookInsidenController::class)->except(['show']);
 
-    // CRUD Logbook Insiden Infrastruktur (FIXED ROUTE NAME)
+    // CRUD Logbook Insiden Infrastruktur
     Route::resource('infrastruktur', LogbookInsidenInfrastrukturController::class)->except(['show']);
-    Route::resource('identitas-server', \App\Http\Controllers\IdentitasServerController::class)->except(['show']);
+
+    // CRUD Identitas Server
+    Route::resource('identitas-server', IdentitasServerController::class)->except(['show']);
+
+    // CRUD Hak Akses Server
+    Route::resource('hak-akses-server', HakAksesServerController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';
