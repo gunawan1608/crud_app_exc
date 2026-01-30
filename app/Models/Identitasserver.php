@@ -12,7 +12,6 @@ class IdentitasServer extends Model
     protected $table = 'identitas_server';
 
     protected $fillable = [
-        'no',
         'ip_host_server',
         'nama_server',
         'lingkungan_server',
@@ -31,7 +30,6 @@ class IdentitasServer extends Model
     ];
 
     protected $casts = [
-        'no' => 'integer',
         'ram_gb' => 'integer',
         'virtual_socket' => 'integer',
         'core_per_socket' => 'integer',

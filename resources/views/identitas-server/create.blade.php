@@ -24,26 +24,14 @@
                 <form method="POST" action="{{ route('identitas-server.store') }}">
                     @csrf
 
-                    <!-- 2-5. SERVER INFO -->
+                    <!-- SERVER INFO -->
                     <div class="border-b border-gray-200 p-6">
-                        <h3 class="text-base font-semibold text-gray-900 mb-4">2-5. Informasi Server</h3>
+                        <h3 class="text-base font-semibold text-gray-900 mb-4">Informasi Server</h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label for="no" class="block text-sm font-medium text-gray-700 mb-2">
-                                    2. No Urut <span class="text-red-500">*</span>
-                                </label>
-                                <input id="no" type="number" name="no" value="{{ old('no', $nextNo) }}"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('no') border-red-300 @enderror"
-                                    required placeholder="1">
-                                @error('no')
-                                    <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
                                 <label for="ip_host_server" class="block text-sm font-medium text-gray-700 mb-2">
-                                    3. IP Host Server <span class="text-red-500">*</span>
+                                    IP Host Server <span class="text-red-500">*</span>
                                 </label>
                                 <select id="ip_host_server" name="ip_host_server"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('ip_host_server') border-red-300 @enderror"
@@ -62,21 +50,8 @@
                             </div>
 
                             <div>
-                                <label for="nama_server" class="block text-sm font-medium text-gray-700 mb-2">
-                                    4. Nama Server <span class="text-red-500">*</span>
-                                </label>
-                                <input id="nama_server" type="text" name="nama_server"
-                                    value="{{ old('nama_server') }}"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('nama_server') border-red-300 @enderror"
-                                    required placeholder="BSN-UBUNTU-PROD-ESIGN">
-                                @error('nama_server')
-                                    <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
                                 <label for="lingkungan_server" class="block text-sm font-medium text-gray-700 mb-2">
-                                    5. Lingkungan Server <span class="text-red-500">*</span>
+                                    Lingkungan Server <span class="text-red-500">*</span>
                                 </label>
                                 <select id="lingkungan_server" name="lingkungan_server"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('lingkungan_server') border-red-300 @enderror"
@@ -93,17 +68,30 @@
                                     <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
+
+                            <div class="md:col-span-2">
+                                <label for="nama_server" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nama Server <span class="text-red-500">*</span>
+                                </label>
+                                <input id="nama_server" type="text" name="nama_server"
+                                    value="{{ old('nama_server') }}"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('nama_server') border-red-300 @enderror"
+                                    required placeholder="BSN-UBUNTU-PROD-ESIGN">
+                                @error('nama_server')
+                                    <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
                     </div>
 
-                    <!-- 6-7. IP SERVER -->
+                    <!-- IP SERVER -->
                     <div class="border-b border-gray-200 p-6">
-                        <h3 class="text-base font-semibold text-gray-900 mb-4">6-7. IP Server</h3>
+                        <h3 class="text-base font-semibold text-gray-900 mb-4">IP Server</h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label for="ip_local" class="block text-sm font-medium text-gray-700 mb-2">
-                                    6. IP Local
+                                    IP Local
                                 </label>
                                 <input id="ip_local" type="text" name="ip_local" value="{{ old('ip_local') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('ip_local') border-red-300 @enderror"
@@ -115,7 +103,7 @@
 
                             <div>
                                 <label for="ip_public" class="block text-sm font-medium text-gray-700 mb-2">
-                                    7. IP Public
+                                    IP Public
                                 </label>
                                 <input id="ip_public" type="text" name="ip_public" value="{{ old('ip_public') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('ip_public') border-red-300 @enderror"
@@ -127,14 +115,14 @@
                         </div>
                     </div>
 
-                    <!-- 8-11. SYSTEM SPECS -->
+                    <!-- SYSTEM SPECS -->
                     <div class="border-b border-gray-200 p-6">
-                        <h3 class="text-base font-semibold text-gray-900 mb-4">8-11. Spesifikasi Sistem</h3>
+                        <h3 class="text-base font-semibold text-gray-900 mb-4">Spesifikasi Sistem</h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="md:col-span-2">
                                 <label for="os" class="block text-sm font-medium text-gray-700 mb-2">
-                                    8. Operating System
+                                    Operating System
                                 </label>
                                 <input id="os" type="text" name="os" value="{{ old('os') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -143,7 +131,7 @@
 
                             <div>
                                 <label for="ram_gb" class="block text-sm font-medium text-gray-700 mb-2">
-                                    9. RAM (GB)
+                                    RAM (GB)
                                 </label>
                                 <input id="ram_gb" type="number" name="ram_gb" value="{{ old('ram_gb') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -152,7 +140,7 @@
 
                             <div>
                                 <label for="virtual_socket" class="block text-sm font-medium text-gray-700 mb-2">
-                                    10. Virtual Socket
+                                    Virtual Socket
                                 </label>
                                 <input id="virtual_socket" type="number" name="virtual_socket"
                                     value="{{ old('virtual_socket') }}"
@@ -162,7 +150,7 @@
 
                             <div>
                                 <label for="core_per_socket" class="block text-sm font-medium text-gray-700 mb-2">
-                                    11. Core per Socket
+                                    Core per Socket
                                 </label>
                                 <input id="core_per_socket" type="number" name="core_per_socket"
                                     value="{{ old('core_per_socket') }}"
@@ -172,15 +160,15 @@
                         </div>
                     </div>
 
-                    <!-- 12-17. STORAGE & SOFTWARE -->
+                    <!-- STORAGE & SOFTWARE -->
                     <div class="border-b border-gray-200 p-6">
-                        <h3 class="text-base font-semibold text-gray-900 mb-4">12-17. Storage & Software</h3>
+                        <h3 class="text-base font-semibold text-gray-900 mb-4">Storage & Software</h3>
 
                         <div class="space-y-5">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
                                     <label for="harddisk_gb" class="block text-sm font-medium text-gray-700 mb-2">
-                                        12. Harddisk (GB)
+                                        Harddisk (GB)
                                     </label>
                                     <input id="harddisk_gb" type="number" name="harddisk_gb"
                                         value="{{ old('harddisk_gb') }}"
@@ -190,7 +178,7 @@
 
                                 <div>
                                     <label for="versi_php" class="block text-sm font-medium text-gray-700 mb-2">
-                                        13. Versi PHP
+                                        Versi PHP
                                     </label>
                                     <input id="versi_php" type="text" name="versi_php"
                                         value="{{ old('versi_php') }}"
@@ -200,7 +188,7 @@
 
                                 <div>
                                     <label for="av_bitdefender" class="block text-sm font-medium text-gray-700 mb-2">
-                                        14. Antivirus BitDefender
+                                        Antivirus BitDefender
                                     </label>
                                     <select id="av_bitdefender" name="av_bitdefender"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
@@ -216,7 +204,7 @@
 
                                 <div>
                                     <label for="administrator" class="block text-sm font-medium text-gray-700 mb-2">
-                                        15. Administrator
+                                        Administrator
                                     </label>
                                     <input id="administrator" type="text" name="administrator"
                                         value="{{ old('administrator') }}"
@@ -226,7 +214,7 @@
 
                                 <div>
                                     <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
-                                        16. Status <span class="text-red-500">*</span>
+                                        Status <span class="text-red-500">*</span>
                                     </label>
                                     <select id="status" name="status"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('status') border-red-300 @enderror"
@@ -246,7 +234,7 @@
 
                             <div>
                                 <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-2">
-                                    17. Keterangan
+                                    Keterangan
                                 </label>
                                 <textarea id="keterangan" name="keterangan" rows="3"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"

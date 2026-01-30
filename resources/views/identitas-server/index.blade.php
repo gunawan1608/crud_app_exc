@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center">
             <div>
                 <h2 class="text-2xl font-semibold text-gray-800">Identitas Server</h2>
-                <p class="text-sm text-gray-500 mt-1">Kelola dan monitor identitas server IT (Urutan sesuai Excel)</p>
+                <p class="text-sm text-gray-500 mt-1">Kelola dan monitor identitas server IT</p>
             </div>
             <div class="flex items-center space-x-3">
                 <a href="{{ route('identitas-server.create') }}"
@@ -68,77 +68,73 @@
                 </div>
             @endif
 
-            <!-- Data Table (URUTAN PERSIS SEPERTI EXCEL) -->
+            <!-- Data Table -->
             <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <!-- 1. ID (Hidden, auto) -->
+                                <!-- No -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     No
                                 </th>
-                                <!-- 2. No -->
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    No Urut
-                                </th>
-                                <!-- 3. IP HOST SERVER -->
+                                <!-- IP HOST SERVER -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     IP Host Server
                                 </th>
-                                <!-- 4. NAMA SERVER -->
+                                <!-- NAMA SERVER -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Nama Server
                                 </th>
-                                <!-- 5. LINGKUNGAN SERVER -->
+                                <!-- LINGKUNGAN SERVER -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Lingkungan
                                 </th>
-                                <!-- 6. IP SERVER - LOCAL -->
+                                <!-- IP SERVER - LOCAL -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     IP Local
                                 </th>
-                                <!-- 7. IP SERVER - PUBLIC -->
+                                <!-- IP SERVER - PUBLIC -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     IP Public
                                 </th>
-                                <!-- 8. OS -->
+                                <!-- OS -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     OS
                                 </th>
-                                <!-- 9. RAM (GB) -->
+                                <!-- RAM (GB) -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     RAM (GB)
                                 </th>
-                                <!-- 10. virtual socket -->
+                                <!-- virtual socket -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     vSocket
                                 </th>
-                                <!-- 11. Core per Socket -->
+                                <!-- Core per Socket -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Core/Socket
                                 </th>
-                                <!-- 12. HARDDISK (GB) -->
+                                <!-- HARDDISK (GB) -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     HDD (GB)
                                 </th>
-                                <!-- 13. Versi PHP -->
+                                <!-- Versi PHP -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     PHP
                                 </th>
-                                <!-- 14. AV BITDEFENDER -->
+                                <!-- AV BITDEFENDER -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     BitDefender
                                 </th>
-                                <!-- 15. Administrator -->
+                                <!-- Administrator -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Admin
                                 </th>
-                                <!-- 16. Status -->
+                                <!-- Status -->
                                 <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Status
                                 </th>
-                                <!-- 17. Keterangan -->
+                                <!-- Keterangan -->
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Keterangan
                                 </th>
@@ -151,61 +147,57 @@
                         <tbody class="bg-white divide-y divide-gray-100">
                             @forelse ($servers as $index => $server)
                                 <tr class="hover:bg-gray-50 transition-colors">
-                                    <!-- Table ID -->
+                                    <!-- No -->
                                     <td class="px-4 py-4 text-sm text-gray-900 font-medium whitespace-nowrap">
                                         {{ $servers->firstItem() + $index }}
                                     </td>
-                                    <!-- 2. No -->
-                                    <td class="px-4 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">
-                                        {{ $server->no }}
-                                    </td>
-                                    <!-- 3. IP HOST SERVER -->
+                                    <!-- IP HOST SERVER -->
                                     <td class="px-4 py-4 text-sm font-mono text-gray-700 whitespace-nowrap">
                                         {{ $server->ip_host_server }}
                                     </td>
-                                    <!-- 4. NAMA SERVER -->
+                                    <!-- NAMA SERVER -->
                                     <td class="px-4 py-4 text-sm font-medium text-gray-900">
                                         {{ $server->nama_server }}
                                     </td>
-                                    <!-- 5. LINGKUNGAN SERVER -->
+                                    <!-- LINGKUNGAN SERVER -->
                                     <td class="px-4 py-4 whitespace-nowrap">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold border {{ $server->lingkungan_color }}">
                                             {{ $server->lingkungan_server }}
                                         </span>
                                     </td>
-                                    <!-- 6. IP Local -->
+                                    <!-- IP Local -->
                                     <td class="px-4 py-4 text-sm font-mono text-gray-700 whitespace-nowrap">
                                         {{ $server->ip_local ?? '-' }}
                                     </td>
-                                    <!-- 7. IP Public -->
+                                    <!-- IP Public -->
                                     <td class="px-4 py-4 text-sm font-mono text-gray-700 whitespace-nowrap">
                                         {{ $server->ip_public ?? '-' }}
                                     </td>
-                                    <!-- 8. OS -->
+                                    <!-- OS -->
                                     <td class="px-4 py-4 text-sm text-gray-700">
                                         {{ $server->os ?? '-' }}
                                     </td>
-                                    <!-- 9. RAM (GB) -->
+                                    <!-- RAM (GB) -->
                                     <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap text-right">
                                         {{ $server->ram_gb ?? '-' }}
                                     </td>
-                                    <!-- 10. virtual socket -->
+                                    <!-- virtual socket -->
                                     <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap text-right">
                                         {{ $server->virtual_socket ?? '-' }}
                                     </td>
-                                    <!-- 11. Core per Socket -->
+                                    <!-- Core per Socket -->
                                     <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap text-right">
                                         {{ $server->core_per_socket ?? '-' }}
                                     </td>
-                                    <!-- 12. HARDDISK (GB) -->
+                                    <!-- HARDDISK (GB) -->
                                     <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap text-right">
                                         {{ $server->harddisk_gb ?? '-' }}
                                     </td>
-                                    <!-- 13. Versi PHP -->
+                                    <!-- Versi PHP -->
                                     <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap">
                                         {{ $server->versi_php ?? '-' }}
                                     </td>
-                                    <!-- 14. AV BITDEFENDER -->
+                                    <!-- AV BITDEFENDER -->
                                     <td class="px-4 py-4 whitespace-nowrap">
                                         @if($server->av_bitdefender)
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold border {{ $server->av_color }}">
@@ -215,17 +207,17 @@
                                             <span class="text-gray-400 text-xs">-</span>
                                         @endif
                                     </td>
-                                    <!-- 15. Administrator -->
+                                    <!-- Administrator -->
                                     <td class="px-4 py-4 text-sm text-gray-700 whitespace-nowrap">
                                         {{ $server->administrator ?? '-' }}
                                     </td>
-                                    <!-- 16. Status -->
+                                    <!-- Status -->
                                     <td class="px-4 py-4 text-center whitespace-nowrap">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold border {{ $server->status_color }}">
                                             {{ $server->status }}
                                         </span>
                                     </td>
-                                    <!-- 17. Keterangan -->
+                                    <!-- Keterangan -->
                                     <td class="px-4 py-4 text-sm text-gray-700">
                                         <div class="max-w-xs">{{ $server->keterangan ?? '-' }}</div>
                                     </td>
@@ -255,7 +247,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="18" class="px-6 py-16 text-center">
+                                    <td colspan="17" class="px-6 py-16 text-center">
                                         <div class="flex flex-col items-center justify-center">
                                             <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -276,23 +268,6 @@
                 <!-- Pagination -->
                 <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
                     {{ $servers->links() }}
-                </div>
-            </div>
-
-            <!-- Info Box -->
-            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div class="flex items-start">
-                    <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                    </svg>
-                    <div>
-                        <p class="text-sm font-medium text-blue-900 mb-1">Catatan Penting</p>
-                        <ul class="text-xs text-blue-700 space-y-1">
-                            <li>• Urutan kolom sudah disesuaikan dengan format Excel standar</li>
-                            <li>• Nomor urut (No) harus unik untuk setiap server</li>
-                            <li>• IP Host Server wajib diisi dengan format IP yang valid</li>
-                        </ul>
-                    </div>
                 </div>
             </div>
         </div>

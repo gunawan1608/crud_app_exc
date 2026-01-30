@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('identitas_server', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedInteger('no');
             $table->string('ip_host_server', 45);
             $table->string('nama_server');
             $table->string('lingkungan_server', 50);

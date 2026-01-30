@@ -12,7 +12,7 @@ class IdentitasServerController extends Controller
      */
     public function index()
     {
-        $servers = IdentitasServer::orderBy('no', 'asc')->paginate(10);
+        $servers = IdentitasServer::orderBy('id', 'asc')->paginate(10);
 
         // Statistics
         $totalServers = IdentitasServer::count();
@@ -32,15 +32,12 @@ class IdentitasServerController extends Controller
      */
     public function create()
     {
-        $nextNo = IdentitasServer::max('no') + 1;
-
         $ipHostOptions = IdentitasServer::getIpHostServerOptions();
         $lingkunganOptions = IdentitasServer::getLingkunganOptions();
         $avOptions = IdentitasServer::getAvBitdefenderOptions();
         $statusOptions = IdentitasServer::getStatusOptions();
 
         return view('identitas-server.create', compact(
-            'nextNo',
             'ipHostOptions',
             'lingkunganOptions',
             'avOptions',
@@ -69,7 +66,6 @@ class IdentitasServerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'no' => 'required|integer|min:1|unique:identitas_server,no',
             'ip_host_server' => 'required|in:192.168.10.21,192.168.10.22,192.168.10.24,202.43.168.180',
             'nama_server' => 'required|string|max:255',
             'lingkungan_server' => 'required|in:Production,Development,Staging',
@@ -99,7 +95,6 @@ class IdentitasServerController extends Controller
     public function update(Request $request, IdentitasServer $identitasServer)
     {
         $validated = $request->validate([
-            'no' => 'required|integer|min:1|unique:identitas_server,no',
             'ip_host_server' => 'required|in:192.168.10.21,192.168.10.22,192.168.10.24,202.43.168.180',
             'nama_server' => 'required|string|max:255',
             'lingkungan_server' => 'required|in:Production,Development,Staging',
